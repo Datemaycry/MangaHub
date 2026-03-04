@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>MangaHub Pro</title>
+    
+    <!-- PWA & APPLE OPTIMIZATIONS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MangaHub">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2232/2232688.png">
+    
+    <!-- LIENS PWA -->
+    <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22MangaHub%20Pro%22%2C%22short_name%22%3A%22MangaHub%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23000000%22%2C%22theme_color%22%3A%22%230f172a%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fcdn-icons-png.flaticon.com%2F512%2F2232%2F2232688.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
+    <meta name="theme-color" content="#0f172a">
+    
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- CONFIGURATION TAILWIND DYNAMIQUE POUR LES THÈMES NÉONS -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        theme: {
+                            100: 'rgba(var(--theme-100), <alpha-value>)',
+                            200: 'rgba(var(--theme-200), <alpha-value>)',
+                            300: 'rgba(var(--theme-300), <alpha-value>)',
+                            400: 'rgba(var(--theme-400), <alpha-value>)',
+                            500: 'rgba(var(--theme-500), <alpha-value>)',
+                            600: 'rgba(var(--theme-600), <alpha-value>)',
+                            800: 'rgba(var(--theme-800), <alpha-value>)',
+                            900: 'rgba(var(--theme-900), <alpha-value>)',
+                            950: 'rgba(var(--theme-950), <alpha-value>)'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/default.css">
+    <script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/index.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        
+        /* VARIABLES CSS DES THEMES (MODE NÉON EXTRÊME) */
+        :root {
+            /* DEFAUT : BLEU FONCÉ NÉON */
+            --theme-rgb: 10, 70, 255;
+            --theme-100: 224, 236, 255;
+            --theme-200: 193, 216, 255;
+            --theme-300: 148, 187, 255;
+            --theme-400: 97, 149, 255;
+            --theme-500: 38, 109, 255;
+            --theme-600: 10, 70, 255;
+            --theme-800: 0, 40, 153;
+            --theme-900: 0, 25, 102;
+            --theme-950: 0, 15, 51;
+        }
+        body[data-theme="red"] {
+            --theme-rgb: 255, 0, 85;
+            --theme-100: 255, 228, 230;
+            --theme-200: 254, 205, 211;
+            --theme-300: 253, 164, 175;
+            --theme-400: 251, 113, 133;
+            --theme-500: 255, 0, 85;
+            --theme-600: 225, 29, 72;
+            --theme-800: 159, 18, 57;
+            --theme-900: 136, 19, 55;
+            --theme-950: 76, 5, 25;
+        }
+        body[data-theme="green"] {
+            --theme-rgb: 57, 255, 20;
+            --theme-100: 220, 253, 230;
+            --theme-200: 187, 250, 206;
+            --theme-300: 134, 239, 172;
+            --theme-400: 74, 222, 128;
+            --theme-500: 57, 255, 20;
+            --theme-600: 22, 163, 74;
+            --theme-800: 22, 101, 52;
+            --theme-900: 20, 83, 45;
+            --theme-950: 5, 46, 22;
+        }
+        body[data-theme="purple"] {
+            --theme-rgb: 213, 0, 255;
+            --theme-100: 250, 232, 255;
+            --theme-200: 243, 204, 255;
+            --theme-300: 233, 168, 255;
+            --theme-400: 222, 104, 255;
+            --theme-500: 213, 0, 255;
+            --theme-600: 162, 28, 175;
+            --theme-800: 107, 33, 168;
+            --theme-900: 88, 28, 135;
+            --theme-950: 59, 7, 100;
+        }
+        body[data-theme="yellow"] {
+            --theme-rgb: 255, 234, 0;
+            --theme-100: 254, 252, 216;
+            --theme-200: 254, 240, 138;
+            --theme-300: 253, 224, 71;
+            --theme-400: 250, 204, 21;
+            --theme-500: 255, 234, 0;
+            --theme-600: 202, 138, 4;
+            --theme-800: 133, 77, 14;
+            --theme-900: 113, 63, 18;
+            --theme-950: 66, 32, 6;
+        }
+
+        html, body, #root { 
+            height: 100%; width: 100%; margin: 0; padding: 0; 
+            overflow: hidden; background-color: #000 !important;
+            font-family: 'Inter', sans-serif; user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .reader-viewport {
+            position: fixed; inset: 0; display: flex; justify-content: center; align-items: center;
+            background-color: #000; z-index: 100; transform-style: preserve-3d; touch-action: none;
+        }
+
+        .reader-img {
+            /* CORRECTION: Forcer 100% pour empêcher tout débordement/rognage dans le flexbox */
+            width: 100% !important;
+            height: 100% !important;
+            display: block; object-fit: contain; pointer-events: none;
+            transform: translateZ(0); will-change: transform; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+            transition: filter 0.4s ease; /* Transition douce pour le mode nuit */
+        }
+
+        /* FILTRE MODE NUIT (SÉPIA + ASSOMBRISSEMENT) */
+        .night-mode-active .reader-img {
+            filter: sepia(0.5) brightness(0.6) contrast(0.9) !important;
+        }
+
+        .reader-ui-top { position: absolute; top: 0; left: 0; right: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); padding: 20px; z-index: 120; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .reader-ui-bottom { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); padding: 25px; z-index: 120; display: flex; justify-content: center; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        .zen-mode-active .reader-ui-top { opacity: 0; pointer-events: none; transform: translateY(-20px); }
+        .zen-mode-active .reader-ui-bottom { opacity: 0; pointer-events: none; transform: translateY(20px); }
+
+        .double-layout { 
+            display: flex; width: 100vw; height: 100%; gap: 0; 
+            align-items: center; justify-content: center; 
+            perspective: 3000px; transform-style: preserve-3d; 
+        }
+
+        .page-wrapper-left {
+            width: 50vw; height: 100%; display: flex; justify-content: flex-end; align-items: center;
+            transform-origin: right center; transform-style: preserve-3d;
+        }
+
+        .page-wrapper-right {
+            width: 50vw; height: 100%; display: flex; justify-content: flex-start; align-items: center;
+            transform-origin: left center; transform-style: preserve-3d;
+        }
+
+        .img-left { object-position: right center; margin-right: -0.25px; }
+        .img-right { object-position: left center; margin-left: -0.25px; }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+
+        .animate-in { animation: fadeIn 0.2s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        @keyframes enterRepliRTL { from { transform: perspective(2500px) rotateY(-90deg); transform-origin: left center; filter: brightness(0.7) drop-shadow(-20px 0px 20px rgba(0,0,0,0.5)); } to { transform: perspective(2500px) rotateY(0deg); transform-origin: left center; filter: brightness(1) drop-shadow(0px 0px 0px rgba(0,0,0,0)); } }
+        @keyframes enterRepliLTR { from { transform: perspective(2500px) rotateY(90deg); transform-origin: right center; filter: brightness(0.7) drop-shadow(20px 0px 20px rgba(0,0,0,0.5)); } to { transform: perspective(2500px) rotateY(0deg); transform-origin: right center; filter: brightness(1) drop-shadow(0px 0px 0px rgba(0,0,0,0)); } }
+
+        .animate-enter-next-rtl { animation: enterRepliRTL 0.9s cubic-bezier(0.15, 0.9, 0.3, 1) forwards; }
+        .animate-enter-prev-rtl { animation: enterRepliLTR 0.9s cubic-bezier(0.15, 0.9, 0.3, 1) forwards; }
+        .animate-enter-next-ltr { animation: enterRepliLTR 0.9s cubic-bezier(0.15, 0.9, 0.3, 1) forwards; }
+        .animate-enter-prev-ltr { animation: enterRepliRTL 0.9s cubic-bezier(0.15, 0.9, 0.3, 1) forwards; }
+
+        @keyframes flipRepliLeft { from { transform: rotateY(90deg); filter: brightness(0.7); } to { transform: rotateY(0deg); filter: brightness(1); } }
+        @keyframes flipRepliRight { from { transform: rotateY(-90deg); filter: brightness(0.7); } to { transform: rotateY(0deg); filter: brightness(1); } }
+        
+        .animate-repli-left { transform-origin: right center; animation: flipRepliLeft 1s cubic-bezier(0.15, 0.9, 0.3, 1) forwards; }
+        .animate-repli-right { transform-origin: left center; animation: flipRepliRight 1s cubic-bezier(0.15, 0.9, 0.3, 1) forwards; }
+
+        main, .view-container { background-color: #000 !important; height: 100%; }
+
+        .custom-range { -webkit-appearance: none; outline: none; background: #334155; }
+        .custom-range::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: rgb(var(--theme-500)); cursor: pointer; box-shadow: 0 0 10px rgba(var(--theme-rgb), 0.6); }
+
+        /* ANIMATION NÉON SÉCURISÉE */
+        @keyframes neon-flicker-opacity {
+            0%, 19.9%, 22%, 62.9%, 64%, 64.9%, 70%, 100% { opacity: 0.9; }
+            20%, 21.9%, 63%, 63.9%, 65%, 69.9% { opacity: 0.3; }
+        }
+        
+        .neon-flicker {
+            animation: neon-flicker-opacity 7s infinite;
+            mix-blend-mode: screen; 
+            pointer-events: none;
+            will-change: opacity;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        window.addEventListener('touchmove', function(e) { if (e.target.closest('.custom-scrollbar') === null) e.preventDefault(); }, {passive: false});
+        MobileDragDrop.polyfill({ holdToDrag: 250 });
+
+        const { useState, useEffect, useMemo, useRef, useCallback } = React;
+
+        const getSafeStorage = (key, defaultVal) => {
+            try { return localStorage.getItem(key) || defaultVal; } catch(e) { return defaultVal; }
+        };
+        const setSafeStorage = (key, val) => {
+            try { localStorage.setItem(key, val); } catch(e) {}
+        };
+
+        const IconPlus = (props) => <svg {...props} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>;
+        const IconTrash = (props) => <svg {...props} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>;
+        const IconX = (props) => <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>;
+        const IconSettings = (props) => <svg {...props} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>;
+        const IconSearch = (props) => <svg {...props} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>;
+        const IconChevronLeft = (props) => <svg {...props} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="15 18 9 12 15 6"></polyline></svg>;
+        const IconUpload = (props) => <svg {...props} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>;
+        const IconClock = (props) => <svg {...props} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>;
+        const IconBookPlus = (props) => <svg {...props} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path><line x1="12" y1="8" x2="12" y2="14"></line><line x1="9" y1="11" x2="15" y2="11"></line></svg>;
+        const IconFloppyUp = (props) => <svg {...props} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><path d="M12 17v-7"></path><polyline points="9 13 12 10 15 13"></polyline></svg>;
+        const IconFloppyDown = (props) => <svg {...props} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><path d="M12 10v7"></path><polyline points="9 14 12 17 15 14"></polyline></svg>;
+        const IconPalette = (props) => <svg {...props} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.5-.7 1.5-1.5 0-.4-.2-.8-.4-1.1-.3-.3-.4-.7-.4-1.1 0-.8.7-1.5 1.5-1.5H16c3.3 0 6-2.7 6-6 0-5.5-4.5-10-10-10z"/></svg>;
+        const IconMoon = (props) => <svg {...props} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>;
+        const IconSun = (props) => <svg {...props} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>;
+        const IconBookmarkOutline = (props) => <svg {...props} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>;
+        const IconBookmarkFilled = (props) => <svg {...props} width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>;
+
+        const DB_NAME = "MangaHub_Stable_V9"; 
+        const STORE_NAME = "mangas";
+
+        const initDB = () => new Promise((res) => {
+            const req = indexedDB.open(DB_NAME, 1);
+            req.onupgradeneeded = e => {
+                if (!e.target.result.objectStoreNames.contains(STORE_NAME)) {
+                    e.target.result.createObjectStore(STORE_NAME, {keyPath: "id"});
+                }
+            };
+            req.onsuccess = e => res(e.target.result);
+        });
+
+        const bufferToBase64Async = (buffer, type) => new Promise((resolve) => {
+            const blob = new Blob([buffer], { type: type || 'application/octet-stream' });
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result.split(',')[1]);
+            reader.readAsDataURL(blob);
+        });
+
+        const base64ToBufferAsync = async (base64, type) => {
+            const res = await fetch(`data:${type || 'application/octet-stream'};base64,${base64}`);
+            return await res.arrayBuffer();
+        };
+
+        const encodeManga = async (manga) => {
+            const clone = { ...manga };
+            const encodeFile = async (f) => {
+                if (!f || !f.data) return f;
+                return { ...f, data: await bufferToBase64Async(f.data, f.type) };
+            };
+            if (clone.coverDouble) clone.coverDouble = await encodeFile(clone.coverDouble);
+            if (clone.coverStart) clone.coverStart = await encodeFile(clone.coverStart);
+            if (clone.coverEnd) clone.coverEnd = await encodeFile(clone.coverEnd);
+            if (clone.cover) clone.cover = await encodeFile(clone.cover);
+            if (clone.pages) {
+                const pages = [];
+                for (let p of clone.pages) pages.push(await encodeFile(p));
+                clone.pages = pages;
+            }
+            return clone;
+        };
+
+        const decodeManga = async (manga) => {
+            const clone = { ...manga };
+            const decodeFile = async (f) => {
+                if (!f || typeof f.data !== 'string') return f;
+                return { ...f, data: await base64ToBufferAsync(f.data, f.type) };
+            };
+            if (clone.coverDouble) clone.coverDouble = await decodeFile(clone.coverDouble);
+            if (clone.coverStart) clone.coverStart = await decodeFile(clone.coverStart);
+            if (clone.coverEnd) clone.coverEnd = await decodeFile(clone.coverEnd);
+            if (clone.cover) clone.cover = await decodeFile(clone.cover);
+            if (clone.pages) {
+                const pages = [];
+                for (let p of clone.pages) pages.push(await decodeFile(p));
+                clone.pages = pages;
+            }
+            return clone;
+        };
+
+        const createImageUrl = (file) => {
+            if (!file) return null;
+            if (file instanceof Blob || file instanceof File) return URL.createObjectURL(file);
+            else if (file.data) {
+                const type = file.type || 'image/jpeg';
+                const blob = new Blob([file.data], { type: type });
+                return URL.createObjectURL(blob);
+            }
+            return null;
+        };
+
+        const ReaderImage = ({ file, className = "", style = {} }) => {
+            const [url, setUrl] = useState(() => createImageUrl(file));
+            useEffect(() => { 
+                const u = createImageUrl(file); 
+                setUrl(u); 
+                return () => { if (u) URL.revokeObjectURL(u); };
+            }, [file]);
+            return url ? <img src={url} className={`reader-img ${className}`} style={style} /> : null;
+        };
+
+        const StackThumbnail = ({ file, contain = false, className = "" }) => {
+            const [url, setUrl] = useState(null);
+            useEffect(() => { 
+                const u = createImageUrl(file); 
+                setUrl(u); 
+                return () => { if (u) URL.revokeObjectURL(u); };
+            }, [file]);
+            return url ? <img src={url} className={`w-full h-full ${contain ? 'object-contain' : 'object-cover'} ${className}`} /> : null;
+        };
+
+        const SpreadDisplay = ({ spread, manga, isAnimating = false, slideDir = "next", physicalStyles = null, isLandscape = true }) => {
+            if (!spread) return null;
+            
+            // CORRECTION : Détecter dynamiquement le sens pour plier la bonne moitié de la page
+            const isRTL = manga?.direction === 'rtl';
+            let animLeftClass = "";
+            let animRightClass = "";
+            
+            if (!physicalStyles && isAnimating) {
+                if (isRTL) {
+                    if (slideDir === 'next') animRightClass = 'animate-repli-right';
+                    if (slideDir === 'prev') animLeftClass = 'animate-repli-left';
+                } else {
+                    if (slideDir === 'next') animLeftClass = 'animate-repli-left';
+                    if (slideDir === 'prev') animRightClass = 'animate-repli-right';
+                }
+            }
+
+            if (spread.center) {
+                if (isLandscape) {
+                    return (
+                        <div className="flex w-full h-full perspective-[3000px] transform-style-[preserve-3d]">
+                            <div 
+                                className={`w-1/2 h-full relative overflow-hidden ${animLeftClass}`} 
+                                style={physicalStyles?.left || {}}
+                            >
+                                <div className="absolute top-0 left-0 w-[100vw] h-full flex justify-center items-center">
+                                    <ReaderImage file={spread.center} />
+                                </div>
+                            </div>
+                            <div 
+                                className={`w-1/2 h-full relative overflow-hidden ${animRightClass}`} 
+                                style={physicalStyles?.right || {}}
+                            >
+                                <div className="absolute top-0 right-0 w-[100vw] h-full flex justify-center items-center">
+                                    <ReaderImage file={spread.center} />
+                                </div>
+                            </div>
+                        </div>
+                    );
+                } else {
+                    return <ReaderImage file={spread.center} style={physicalStyles?.single || {}} />;
+                }
+            }
+            return (
+                <div className="double-layout">
+                    <div 
+                        className={`page-wrapper-left ${animLeftClass}`} 
+                        style={physicalStyles?.left || {}}
+                    >
+                        {spread.left ? <ReaderImage file={spread.left} className="img-left" /> : <div className="w-full h-full bg-black"></div>}
+                    </div>
+                    
+                    <div 
+                        className={`page-wrapper-right ${animRightClass}`} 
+                        style={physicalStyles?.right || {}}
+                    >
+                        {spread.right ? <ReaderImage file={spread.right} className="img-right" /> : <div className="w-full h-full bg-black"></div>}
+                    </div>
+                </div>
+            );
+        };
+
+        function App() {
+            const [isLandscape, setIsLandscape] = useState(window.innerWidth > window.innerHeight);
+
+            const [appTheme, setAppTheme] = useState(() => getSafeStorage('mangaHubTheme', 'blue'));
+            const [showThemeSettings, setShowThemeSettings] = useState(false);
+            const [isNightMode, setIsNightMode] = useState(() => getSafeStorage('mangaHubNightMode', 'false') === 'true');
+
+            useEffect(() => {
+                document.body.setAttribute('data-theme', appTheme);
+                setSafeStorage('mangaHubTheme', appTheme);
+            }, [appTheme]);
+
+            useEffect(() => {
+                setSafeStorage('mangaHubNightMode', isNightMode.toString());
+            }, [isNightMode]);
+
+            useEffect(() => {
+                const handleResize = () => setIsLandscape(window.innerWidth > window.innerHeight);
+                window.addEventListener('resize', handleResize);
+                window.addEventListener('orientationchange', handleResize);
+                return () => {
+                    window.removeEventListener('resize', handleResize);
+                    window.removeEventListener('orientationchange', handleResize);
+                };
+            }, []);
+
+            const [view, setView] = useState('hub');
+            const [mangas, setMangas] = useState([]);
+            const [search, setSearch] = useState("");
+            const [libSort, setLibSort] = useState('recent');
+            const [currentManga, setCurrentManga] = useState(null);
+            
+            const [isAdding, setIsAdding] = useState(false);
+            const [loading, setLoading] = useState(false);
+            const [importProgress, setImportProgress] = useState(null);
+            const [cursor, setCursor] = useState(0); 
+            const [zenMode, setZenMode] = useState(false);
+            const [showNextChapterOverlay, setShowNextChapterOverlay] = useState(false); 
+            const [slideDir, setSlideDir] = useState('next'); 
+            const [prevCursor, setPrevCursor] = useState(null); 
+            
+            const [drag, setDrag] = useState({ active: false, startX: 0, diffX: 0, progress: 0, dir: null, targetCursor: null, snapping: false });
+
+            const [deleteConfirm, setDeleteConfirm] = useState(null);
+            const [purgeConfirm, setPurgeConfirm] = useState(false);
+            const [editingManga, setEditingManga] = useState(null);
+
+            const [formTitle, setFormTitle] = useState("");
+            const [formMangaDir, setFormMangaDir] = useState('rtl');
+            const [formTags, setFormTags] = useState("");
+            const [formIsDoubleCover, setFormIsDoubleCover] = useState(false);
+            const [activeTags, setActiveTags] = useState([]); 
+            const [showTags, setShowTags] = useState(false); 
+            const [showBookmarksOnly, setShowBookmarksOnly] = useState(false);
+            
+            const [coverDoubleFile, setCoverDoubleFile] = useState(null);
+            const [coverStartFile, setCoverStartFile] = useState(null);
+            const [coverStartPreview, setCoverStartPreview] = useState(null);
+            const [coverEndFile, setCoverEndFile] = useState(null);
+            const [coverEndPreview, setCoverEndPreview] = useState(null);
+            const [orderedPages, setOrderedPages] = useState([]);
+            
+            const [showSettings, setShowSettings] = useState(false);
+            const [showGlobalSettings, setShowGlobalSettings] = useState(false);
+            const [isManualSorting, setIsManualSorting] = useState(false);
+            const [sortMethod, setSortMethod] = useState('name-asc');
+            const [rawPages, setRawPages] = useState([]);
+
+            const [draggedIdx, setDraggedIdx] = useState(null);
+            const [dragOverIdx, setDragOverIdx] = useState(null);
+            const [deferredPrompt, setDeferredPrompt] = useState(null);
+
+            useEffect(() => { loadMangas(); }, []);
+
+            useEffect(() => {
+                const handleBeforeInstallPrompt = (e) => {
+                    e.preventDefault();
+                    setDeferredPrompt(e);
+                };
+                window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+                return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+            }, []);
+
+            const handleInstallApp = async () => {
+                if (!deferredPrompt) return;
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') setDeferredPrompt(null);
+            };
+
+            const handleExport = async () => {
+                setLoading(true); setImportProgress("Préparation de l'export...");
+                try {
+                    const db = await initDB();
+                    const tx = db.transaction(STORE_NAME, "readonly");
+                    const allMangas = await new Promise(res => tx.objectStore(STORE_NAME).getAll().onsuccess = e => res(e.target.result));
+                    const encodedMangas = [];
+                    for (let i = 0; i < allMangas.length; i++) {
+                        setImportProgress(`Compression... (${i+1}/${allMangas.length})`);
+                        encodedMangas.push(await encodeManga(allMangas[i]));
+                    }
+                    const json = JSON.stringify(encodedMangas);
+                    const blob = new Blob([json], { type: "application/json" });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `MangaHub_Backup_${new Date().toLocaleDateString('fr-FR').replace(/\//g, '-')}.json`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    setImportProgress(null); setLoading(false); setShowGlobalSettings(false);
+                } catch (err) {
+                    console.error(err); alert("Erreur lors de l'export."); setLoading(false); setImportProgress(null);
+                }
+            };
+
+            const handleImport = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                setLoading(true); setImportProgress("Lecture du fichier...");
+                try {
+                    const reader = new FileReader();
+                    reader.onload = async (ev) => {
+                        try {
+                            const data = JSON.parse(ev.target.result);
+                            const decodedMangas = [];
+                            for (let i = 0; i < data.length; i++) {
+                                setImportProgress(`Préparation... (${i+1}/${data.length})`);
+                                decodedMangas.push(await decodeManga(data[i]));
+                            }
+                            const db = await initDB();
+                            const tx = db.transaction(STORE_NAME, "readwrite");
+                            const store = tx.objectStore(STORE_NAME);
+                            for (let i = 0; i < decodedMangas.length; i++) { store.put(decodedMangas[i]); }
+                            tx.oncomplete = () => { setLoading(false); setImportProgress(null); setShowGlobalSettings(false); e.target.value = ''; loadMangas(); alert("Restauration terminée avec succès !"); };
+                        } catch(err) { console.error(err); alert("Fichier invalide ou corrompu."); setLoading(false); setImportProgress(null); e.target.value = ''; }
+                    };
+                    reader.readAsText(file);
+                } catch(err) { console.error(err); setLoading(false); setImportProgress(null); e.target.value = ''; }
+            };
+
+            const handleZipImport = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                setCoverStartFile(null); setCoverStartPreview(null);
+                setCoverEndFile(null); setCoverEndPreview(null);
+                setLoading(true);
+                setImportProgress("Lecture de l'archive...");
+                try {
+                    const zip = new JSZip();
+                    await zip.loadAsync(file);
+                    let metadata = null;
+                    if (zip.file("metadata.json")) { try { metadata = JSON.parse(await zip.file("metadata.json").async("string")); } catch(e) { console.error("Metadata invalide", e); } }
+                    const filesMap = {};
+                    const imagePromises = [];
+                    zip.forEach((relativePath, zipEntry) => {
+                        if (!zipEntry.dir && !relativePath.includes('__MACOSX') && !relativePath.endsWith('metadata.json')) {
+                            const p = zipEntry.async('arraybuffer').then(buffer => {
+                                const ext = relativePath.split('.').pop().toLowerCase();
+                                let mimeType = 'image/jpeg';
+                                if (ext === 'png') mimeType = 'image/png';
+                                else if (ext === 'webp') mimeType = 'image/webp';
+                                else if (ext === 'gif') mimeType = 'image/gif';
+                                const blob = new Blob([buffer], { type: mimeType });
+                                blob.name = relativePath.split('/').pop();
+                                blob.lastModified = zipEntry.date ? zipEntry.date.getTime() : Date.now();
+                                filesMap[relativePath] = blob;
+                                return blob;
+                            });
+                            imagePromises.push(p);
+                        }
+                    });
+                    await Promise.all(imagePromises);
+                    if (metadata) {
+                        setImportProgress("Restauration...");
+                        setFormTitle(metadata.title || "");
+                        setFormMangaDir(metadata.direction || "rtl");
+                        setFormIsDoubleCover(metadata.isDoubleCover || false); 
+                        
+                        const importedTags = new Set((metadata.tags || []).map(t => t.toUpperCase()));
+                        if (metadata.group) importedTags.add(metadata.group.toUpperCase());
+                        setFormTags(Array.from(importedTags).join(', '));
+                        
+                        if (metadata.coverStart && filesMap[metadata.coverStart]) { setCoverStartFile(filesMap[metadata.coverStart]); setCoverStartPreview(URL.createObjectURL(filesMap[metadata.coverStart])); }
+                        if (metadata.coverEnd && filesMap[metadata.coverEnd]) { setCoverEndFile(filesMap[metadata.coverEnd]); setCoverEndPreview(URL.createObjectURL(filesMap[metadata.coverEnd])); }
+                        const pages = (metadata.pages || []).map(p => filesMap[p]).filter(Boolean);
+                        setOrderedPages(pages); setRawPages(pages);
+                    } else {
+                        const images = Object.values(filesMap).filter(f => f.name.match(/\.(jpg|jpeg|png|webp|gif)$/i)).sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+                        if (images.length === 0) throw new Error("Archive vide");
+                        setFormTitle(file.name.replace(/\.(zip|cbz)$/i, ''));
+                        setOrderedPages(images); setRawPages(images);
+                        setCoverStartFile(images[0]); setCoverStartPreview(URL.createObjectURL(images[0]));
+                    }
+                    setLoading(false); setImportProgress(null);
+                } catch (error) { console.error("Erreur zip:", error); alert("Erreur lors de l'lecture de l'archive ZIP/CBZ."); setLoading(false); setImportProgress(null); }
+                e.target.value = ''; 
+            };
+
+            const handleExportArchive = async (manga, format, e) => {
+                e.stopPropagation(); setLoading(true); setImportProgress(`Préparation ${format.toUpperCase()}...`);
+                try {
+                    const zip = new JSZip();
+                    const metadata = { title: manga.title || "", direction: manga.direction || "rtl", isDoubleCover: manga.isDoubleCover || false, tags: manga.tags || [], pages: [] };
+                    
+                    const addFileToZip = (fileObj, nameBase) => {
+                        const buffer = fileObj?.data || fileObj; if (!buffer) return null;
+                        const ext = fileObj?.type === 'image/png' ? 'png' : fileObj?.type === 'image/webp' ? 'webp' : 'jpg';
+                        const filename = `${nameBase}.${ext}`; zip.file(filename, buffer); return filename;
+                    };
+                    
+                    if (manga.coverDouble) metadata.coverDouble = addFileToZip(manga.coverDouble, "cover_double");
+                    if (manga.coverStart) metadata.coverStart = addFileToZip(manga.coverStart, "cover_start");
+                    if (manga.coverEnd) metadata.coverEnd = addFileToZip(manga.coverEnd, "cover_end");
+                    const fallbackCover = manga.coverDouble || manga.coverStart || manga.cover; if (fallbackCover) addFileToZip(fallbackCover, "000_cover_preview"); 
+                    if (manga.pages) { manga.pages.forEach((p, i) => { const filename = addFileToZip(p, `page_${String(i+1).padStart(3,'0')}`); if (filename) metadata.pages.push(filename); }); }
+                    zip.file("metadata.json", JSON.stringify(metadata, null, 2));
+                    const content = await zip.generateAsync({ type: "blob" });
+                    const a = document.createElement("a"); a.href = URL.createObjectURL(content); a.download = `${manga.title.replace(/[^a-z0-9]/gi,'_')}.${format}`; a.click();
+                    setLoading(false); setImportProgress(null);
+                } catch (error) { console.error(error); alert(`Erreur lors de l'export.`); setLoading(false); setImportProgress(null); }
+            };
+
+            const loadMangas = async () => {
+                const db = await initDB();
+                db.transaction(STORE_NAME).objectStore(STORE_NAME).getAll().onsuccess = e => setMangas(e.target.result || []);
+            };
+
+            const saveProgress = async (mangaId, newCursor, isFinished = false, currentTotalSpreads = 0) => {
+                const db = await initDB();
+                const tx = db.transaction(STORE_NAME, "readwrite");
+                const store = tx.objectStore(STORE_NAME);
+                store.get(mangaId).onsuccess = (e) => {
+                    const manga = e.target.result;
+                    if (manga) { 
+                        manga.progress = newCursor; manga.isFinished = isFinished;
+                        if (currentTotalSpreads > 0) manga.totalSpreads = currentTotalSpreads;
+                        
+                        if (isFinished) manga.bookmark = null; 
+                        
+                        manga.lastRead = Date.now(); store.put(manga); 
+                        
+                        if (isFinished && currentManga && currentManga.id === mangaId && currentManga.bookmark != null) {
+                            setCurrentManga(prev => ({...prev, bookmark: null}));
+                            loadMangas();
+                        }
+                    }
+                };
+            };
+
+            useEffect(() => {
+                if (view === 'reader' && currentManga && allSpreads) {
+                    const timer = setTimeout(() => {
+                        saveProgress(currentManga.id, cursor, cursor >= (allSpreads.length || 1) - 1, allSpreads.length);
+                    }, 500);
+                    return () => clearTimeout(timer);
+                }
+            }, [cursor, currentManga, view, allSpreads]);
+
+            const markAsRead = async (manga) => {
+                const db = await initDB();
+                const tx = db.transaction(STORE_NAME, "readwrite");
+                const store = tx.objectStore(STORE_NAME);
+                store.get(manga.id).onsuccess = (e) => {
+                    const dbManga = e.target.result;
+                    if (dbManga) { dbManga.lastRead = Date.now(); store.put(dbManga); loadMangas(); }
+                };
+            };
+            
+            const handlePagesSelection = (e) => {
+                if (e.target.files && e.target.files.length > 0) {
+                    setRawPages(Array.from(e.target.files)); setSortMethod('name-asc'); setIsManualSorting(false);
+                }
+            };
+
+            useEffect(() => {
+                if (!rawPages.length || sortMethod === 'custom') return;
+                let files = [...rawPages];
+                if (sortMethod === 'name-asc') files.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+                else if (sortMethod === 'date-asc') files.sort((a, b) => a.lastModified - b.lastModified);
+                else if (sortMethod === 'date-desc') files.sort((a, b) => b.lastModified - a.lastModified);
+                setOrderedPages(files);
+            }, [rawPages, sortMethod]);
+
+            const handleDragStart = (e, index) => {
+                setDraggedIdx(index);
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', index);
+            };
+
+            const handleDragOver = (e, index) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                if (dragOverIdx !== index) {
+                    setDragOverIdx(index);
+                }
+            };
+
+            const handleDrop = (e, index) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (draggedIdx !== null && draggedIdx !== index) {
+                    const newPages = [...orderedPages];
+                    const item = newPages.splice(draggedIdx, 1)[0];
+                    newPages.splice(index, 0, item);
+                    setOrderedPages(newPages);
+                    setSortMethod('custom');
+                }
+                setDraggedIdx(null);
+                setDragOverIdx(null);
+            };
+
+            const handleDragEnd = () => {
+                setDraggedIdx(null);
+                setDragOverIdx(null);
+            };
+
+            const toggleBookmark = async (e) => {
+                if (e) e.stopPropagation();
+                if (!currentManga) return;
+                
+                const newBookmark = currentManga.bookmark === cursor ? null : cursor;
+                setCurrentManga(prev => ({...prev, bookmark: newBookmark})); 
+                
+                const db = await initDB();
+                const tx = db.transaction(STORE_NAME, "readwrite");
+                const store = tx.objectStore(STORE_NAME);
+                store.get(currentManga.id).onsuccess = (ev) => {
+                    const manga = ev.target.result;
+                    if (manga) {
+                        manga.bookmark = newBookmark;
+                        store.put(manga);
+                    }
+                };
+                tx.oncomplete = () => loadMangas();
+            };
+
+            const handleAdd = async (e) => {
+                e.preventDefault();
+                if (!orderedPages.length || !coverStartFile) { alert("Il manque au minimum la cover de début et les pages !"); return; }
+                setLoading(true); setImportProgress("0%");
+                try {
+                    const fileToBuffer = (file) => new Promise((resolve, reject) => {
+                        if(!file) return resolve(null);
+                        const reader = new FileReader();
+                        reader.onload = () => resolve({ name: file.name, type: file.type || 'image/jpeg', data: reader.result });
+                        reader.readAsArrayBuffer(file);
+                    });
+                    const coverDoubleBuffer = await fileToBuffer(coverDoubleFile); 
+                    const coverStartBuffer = await fileToBuffer(coverStartFile);
+                    const coverEndBuffer = await fileToBuffer(coverEndFile);
+                    const pagesBuffers = [];
+                    for (let i = 0; i < orderedPages.length; i++) {
+                        pagesBuffers.push(await fileToBuffer(orderedPages[i]));
+                        setImportProgress(`${Math.round(((i + 1) / orderedPages.length) * 100)}%`);
+                    }
+                    
+                    const newTags = formTags.split(',').map(t => t.trim().toUpperCase()).filter(Boolean);
+
+                    const db = await initDB();
+                    const tx = db.transaction(STORE_NAME, "readwrite");
+                    tx.objectStore(STORE_NAME).add({
+                        id: "m_"+Date.now(), title: formTitle || "Sans titre", direction: formMangaDir,
+                        tags: newTags,
+                        isDoubleCover: formIsDoubleCover, 
+                        coverDouble: coverDoubleBuffer, 
+                        coverStart: coverStartBuffer, 
+                        coverEnd: coverEndBuffer, 
+                        cover: coverStartBuffer || coverDoubleBuffer,
+                        pages: pagesBuffers, progress: 0, date: Date.now()
+                    });
+                    tx.oncomplete = () => { setLoading(false); setImportProgress(null); setIsAdding(false); resetForm(); loadMangas(); };
+                } catch (error) { console.error(error); setLoading(false); setImportProgress(null); alert("Erreur import."); }
+            };
+
+            const resetForm = () => {
+                if (coverStartPreview) URL.revokeObjectURL(coverStartPreview);
+                if (coverEndPreview) URL.revokeObjectURL(coverEndPreview);
+                setFormTitle(""); setFormTags(""); setFormIsDoubleCover(false); setCoverDoubleFile(null); setCoverStartFile(null); setCoverEndFile(null);
+                setCoverStartPreview(null); setCoverEndPreview(null);
+                setOrderedPages([]); setRawPages([]); setShowSettings(false); setIsManualSorting(false);
+            };
+
+            const executeUpdateManga = async (e) => {
+                e.preventDefault(); const nt = e.target.title.value;
+                const nTags = e.target.tags.value.split(',').map(t => t.trim().toUpperCase()).filter(Boolean);
+                setLoading(true); const db = await initDB(); const tx = db.transaction(STORE_NAME, "readwrite");
+                const store = tx.objectStore(STORE_NAME); store.get(editingManga.id).onsuccess = (ev) => {
+                    const item = ev.target.result; if (item) { item.title = nt; item.tags = nTags; delete item.group; store.put(item); }
+                };
+                tx.oncomplete = () => { setLoading(false); setEditingManga(null); loadMangas(); };
+            };
+
+            const executePurge = async () => { setLoading(true); const db = await initDB(); db.transaction(STORE_NAME, "readwrite").objectStore(STORE_NAME).clear(); window.location.reload(); };
+
+            const getProgressPercent = (m) => {
+                if (!m) return 0; if (m.isFinished) return 100;
+                if (m.totalSpreads && m.totalSpreads > 1) return Math.min(100, Math.round((m.progress / (m.totalSpreads - 1)) * 100));
+                return Math.min(100, Math.round((m.progress / Math.max(1, m.pages?.length || 1)) * 100));
+            };
+
+            const libraryStructure = useMemo(() => {
+                const tagsSet = new Set();
+                
+                const normalizedMangas = mangas.map(m => {
+                    const tSet = new Set((m.tags || []).map(t => t.toUpperCase()));
+                    if (m.group) tSet.add(m.group.toUpperCase());
+                    return { ...m, tags: Array.from(tSet).sort() };
+                });
+
+                normalizedMangas.forEach(m => m.tags.forEach(t => tagsSet.add(t)));
+                const allAvailableTags = Array.from(tagsSet).sort();
+
+                const filtered = normalizedMangas.filter(m => {
+                    const matchSearch = m.title.toLowerCase().includes(search.toLowerCase());
+                    const matchTags = activeTags.length === 0 || activeTags.every(t => m.tags.includes(t));
+                    const matchBookmark = showBookmarksOnly ? (m.bookmark != null) : true;
+                    return matchSearch && matchTags && matchBookmark;
+                });
+
+                if (libSort === 'alpha') {
+                    filtered.sort((a,b) => a.title.localeCompare(b.title, undefined, {numeric: true}));
+                } else {
+                    filtered.sort((a,b) => b.date - a.date);
+                }
+
+                return { mangas: filtered, allAvailableTags };
+            }, [mangas, search, libSort, activeTags, showBookmarksOnly]);
+
+            const allSpreads = useMemo(() => {
+                if(!currentManga) return [];
+                
+                let p = currentManga.pages || [];
+                const startName = currentManga.coverStart?.name;
+                const endName = currentManga.coverEnd?.name;
+                if (startName || endName) {
+                    p = p.filter(page => page.name !== startName && page.name !== endName);
+                }
+
+                const spreads = []; 
+                const isRTL = currentManga.direction === 'rtl';
+                const isDouble = currentManga.isDoubleCover;
+                
+                if (isLandscape) {
+                    if (isDouble && currentManga.coverStart && currentManga.coverEnd) {
+                        // CORRECTION : Respecter la mise à plat physique (BD vs Manga)
+                        if (isRTL) {
+                            spreads.push({ left: currentManga.coverStart, right: currentManga.coverEnd, info: "Couvertures", pageIndices: [-1] });
+                        } else {
+                            spreads.push({ left: currentManga.coverEnd, right: currentManga.coverStart, info: "Couvertures", pageIndices: [-1] });
+                        }
+                    } else {
+                        const cover = currentManga.coverStart || currentManga.coverDouble;
+                        if (cover) {
+                            // CORRECTION : Placement physique d'une couverture simple
+                            if (isRTL) {
+                                spreads.push({ left: cover, right: null, info: "Couverture", pageIndices: [-1] });
+                            } else {
+                                spreads.push({ left: null, right: cover, info: "Couverture", pageIndices: [-1] });
+                            }
+                        }
+                    }
+
+                    for (let i = 0; i < p.length; i += 2) {
+                        const next = p[i+1];
+                        if (!next) {
+                            if (isRTL) spreads.push({ left: null, right: p[i], info: `Page ${i+1}`, pageIndices: [i] });
+                            else spreads.push({ left: p[i], right: null, info: `Page ${i+1}`, pageIndices: [i] });
+                        }
+                        else if (isRTL) spreads.push({ left: p[i+1], right: p[i], info: `Pages ${i+2} - ${i+1}`, pageIndices: [i, i+1] });
+                        else spreads.push({ left: p[i], right: p[i+1], info: `Pages ${i+1} - ${i+2}`, pageIndices: [i, i+1] });
+                    }
+                    
+                    if (currentManga.coverEnd && !isDouble) {
+                        // CORRECTION : Placement physique d'une 4ème de couverture simple
+                        if (isRTL) {
+                            spreads.push({ left: null, right: currentManga.coverEnd, info: "Couverture Fin", pageIndices: [-2] });
+                        } else {
+                            spreads.push({ left: currentManga.coverEnd, right: null, info: "Couverture Fin", pageIndices: [-2] });
+                        }
+                    }
+                } else {
+                    const startCover = currentManga.coverStart || currentManga.coverDouble;
+                    if (startCover) spreads.push({ center: startCover, info: "Couverture Début", pageIndices: [-1] });
+                    
+                    p.forEach((page, i) => spreads.push({ center: page, info: `Page ${i+1}`, pageIndices: [i] }));
+                    
+                    if (currentManga.coverEnd) spreads.push({ center: currentManga.coverEnd, info: "Couverture Fin", pageIndices: [-2] });
+                }
+                return spreads;
+            }, [currentManga, isLandscape]);
+
+            const prevOrientation = useRef(isLandscape);
+            const prevSpreadsRef = useRef(allSpreads);
+
+            useEffect(() => {
+                if (prevOrientation.current !== isLandscape && allSpreads && allSpreads.length > 0) {
+                    const oldSpreads = prevSpreadsRef.current; const currentSpread = oldSpreads[cursor];
+                    if (currentSpread && currentSpread.pageIndices) {
+                        const isRTL = currentManga?.direction === 'rtl'; let targetPage = currentSpread.pageIndices[0];
+                        if (prevOrientation.current === true && isLandscape === false && currentSpread.pageIndices.length === 2) { targetPage = isRTL ? currentSpread.pageIndices[0] : currentSpread.pageIndices[1]; }
+                        const newCursor = allSpreads.findIndex(s => s.pageIndices.includes(targetPage));
+                        if (newCursor !== -1 && newCursor !== cursor) { setCursor(newCursor); }
+                    }
+                    prevOrientation.current = isLandscape;
+                }
+                prevSpreadsRef.current = allSpreads;
+            }, [isLandscape, allSpreads, currentManga, cursor]);
+
+            const handleSetCursor = (newVal) => {
+                if (newVal === cursor) return;
+                setPrevCursor(cursor);
+                setSlideDir(newVal > cursor ? 'next' : 'prev');
+                setCursor(newVal);
+                setShowNextChapterOverlay(false);
+                setTimeout(() => setPrevCursor(null), 1200);
+            };
+
+            useEffect(() => {
+                const handleKeyDown = (e) => {
+                    if (view !== 'reader' || isAdding || showGlobalSettings || !allSpreads) return;
+                    const isRTL = currentManga?.direction === 'rtl';
+                    
+                    if (e.key === 'ArrowRight') {
+                        const goNext = isRTL ? false : true;
+                        if (goNext) {
+                            if (cursor < allSpreads.length - 1) handleSetCursor(cursor + 1);
+                            else setShowNextChapterOverlay(true);
+                        } else {
+                            if (showNextChapterOverlay) setShowNextChapterOverlay(false);
+                            else if (cursor > 0) handleSetCursor(cursor - 1);
+                        }
+                    } else if (e.key === 'ArrowLeft') {
+                        const goNext = isRTL ? true : false;
+                        if (goNext) {
+                            if (cursor < allSpreads.length - 1) handleSetCursor(cursor + 1);
+                            else setShowNextChapterOverlay(true);
+                        } else {
+                            if (showNextChapterOverlay) setShowNextChapterOverlay(false);
+                            else if (cursor > 0) handleSetCursor(cursor - 1);
+                        }
+                    } else if (e.key === 'ArrowUp') {
+                        setZenMode(prev => !prev);
+                    }
+                };
+                window.addEventListener('keydown', handleKeyDown);
+                return () => window.removeEventListener('keydown', handleKeyDown);
+            }, [view, cursor, allSpreads, showNextChapterOverlay, isAdding, showGlobalSettings, currentManga]);
+
+            const isPhysicalAnimating = drag.active || drag.snapping;
+            
+            let physicalStyles = null;
+            if (isPhysicalAnimating) {
+                const isRTL = currentManga?.direction === 'rtl';
+                const p = drag.progress; 
+                const trans = drag.snapping ? 'transform 0.4s cubic-bezier(0.15, 0.9, 0.3, 1), filter 0.4s' : 'none';
+
+                const brightness = 1 - (Math.sin(p * Math.PI) * 0.35); 
+                const dropShadowX = drag.dir === 'next' ? -35 : 35;
+                
+                // CORRECTION : Remplacement de l'effet néon par une ombre noire naturelle pour la lecture
+                const shadowOpacity = Math.sin(p * Math.PI) * 0.7; 
+                const filterStyle = `brightness(${brightness}) drop-shadow(${dropShadowX}px 5px 30px rgba(0, 0, 0, ${shadowOpacity}))`;
+
+                let singleAngle = 0; let singleOrigin = 'center';
+                let leftStyle = {}; let rightStyle = {};
+
+                if (isRTL) {
+                    if (drag.dir === 'next') { 
+                        singleAngle = -90 + (p * 90); singleOrigin = 'left center'; 
+                        rightStyle = { transform: `perspective(2500px) rotateY(${-90 + (p * 90)}deg)`, transformOrigin: 'left center', transition: trans, filter: filterStyle };
+                    }
+                    if (drag.dir === 'prev') { 
+                        singleAngle = 90 - (p * 90); singleOrigin = 'right center'; 
+                        leftStyle = { transform: `perspective(2500px) rotateY(${90 - (p * 90)}deg)`, transformOrigin: 'right center', transition: trans, filter: filterStyle };
+                    }
+                } else {
+                    if (drag.dir === 'next') { 
+                        singleAngle = 90 - (p * 90); singleOrigin = 'right center'; 
+                        leftStyle = { transform: `perspective(2500px) rotateY(${90 - (p * 90)}deg)`, transformOrigin: 'right center', transition: trans, filter: filterStyle };
+                    }
+                    if (drag.dir === 'prev') { 
+                        singleAngle = -90 + (p * 90); singleOrigin = 'left center'; 
+                        rightStyle = { transform: `perspective(2500px) rotateY(${-90 + (p * 90)}deg)`, transformOrigin: 'left center', transition: trans, filter: filterStyle };
+                    }
+                }
+
+                physicalStyles = {
+                    single: { transform: `perspective(2500px) rotateY(${singleAngle}deg)`, transformOrigin: singleOrigin, transition: trans, filter: filterStyle },
+                    left: leftStyle,
+                    right: rightStyle
+                };
+            }
+
+            const handlePointerDown = (e) => {
+                if (showNextChapterOverlay || prevCursor !== null) return;
+                if (e.target.tagName?.toLowerCase() === 'input' || e.target.closest('button')) return;
+                
+                e.target.setPointerCapture(e.pointerId);
+                setDrag({ active: true, startX: e.clientX, diffX: 0, progress: 0, dir: null, targetCursor: null, snapping: false });
+            };
+
+            const handlePointerMove = (e) => {
+                if (!drag.active || !allSpreads) return;
+                const diffX = e.clientX - drag.startX;
+                const isRTL = currentManga?.direction === 'rtl';
+
+                let dir = null;
+                if (diffX > 5) dir = isRTL ? 'next' : 'prev';
+                else if (diffX < -5) dir = isRTL ? 'prev' : 'next';
+
+                let targetCursor = null;
+                if (dir === 'next') targetCursor = cursor + 1;
+                if (dir === 'prev') targetCursor = cursor - 1;
+
+                let progress = 0;
+                if (targetCursor !== null && targetCursor >= 0 && targetCursor < allSpreads.length) {
+                    progress = Math.min(1, Math.abs(diffX) / window.innerWidth);
+                } else {
+                    progress = Math.min(0.15, Math.abs(diffX) / (window.innerWidth * 3)); 
+                }
+                setDrag(prev => ({ ...prev, diffX, dir, targetCursor, progress }));
+            };
+
+            const handlePointerUp = (e) => {
+                if (!drag.active || !allSpreads) return;
+                e.target.releasePointerCapture(e.pointerId);
+
+                const isClick = Math.abs(drag.diffX) < 10;
+                if (isClick) {
+                    setDrag({ active: false, startX: 0, diffX: 0, progress: 0, dir: null, targetCursor: null, snapping: false });
+                    const x = drag.startX; const w = window.innerWidth;
+                    if (x > w*0.35 && x < w*0.65) {
+                        setZenMode(!zenMode);
+                    } else {
+                        const isRTL = currentManga?.direction === 'rtl';
+                        const clickedRight = x > w/2;
+                        const goNext = isRTL ? !clickedRight : clickedRight;
+
+                        if (goNext) {
+                            if (cursor < allSpreads.length - 1) handleSetCursor(cursor + 1);
+                            else setShowNextChapterOverlay(true);
+                        } else {
+                            if (showNextChapterOverlay) setShowNextChapterOverlay(false);
+                            else if (cursor > 0) handleSetCursor(cursor - 1);
+                        }
+                    }
+                    return;
+                }
+
+                if (drag.progress > 0.20 && drag.targetCursor !== null && drag.targetCursor >= 0 && drag.targetCursor < allSpreads.length) {
+                    setDrag(prev => ({ ...prev, active: false, snapping: 'forward', progress: 1 }));
+                    setTimeout(() => {
+                        const finalCursor = drag.targetCursor;
+                        setCursor(finalCursor);
+                        
+                        // SAUVEGARDE INSTANTANÉE APRÈS LE GESTE
+                        if (currentManga && allSpreads) {
+                            saveProgress(currentManga.id, finalCursor, finalCursor >= allSpreads.length - 1, allSpreads.length);
+                        }
+                        
+                        setTimeout(() => {
+                            setDrag({ active: false, startX: 0, diffX: 0, progress: 0, dir: null, targetCursor: null, snapping: false });
+                        }, 150);
+                    }, 400);
+                } else {
+                    if (drag.targetCursor !== null && drag.targetCursor >= allSpreads.length && drag.progress > 0.1) {
+                        setShowNextChapterOverlay(true);
+                    }
+                    setDrag(prev => ({ ...prev, active: false, snapping: 'backward', progress: 0 }));
+                    setTimeout(() => {
+                        setDrag({ active: false, startX: 0, diffX: 0, progress: 0, dir: null, targetCursor: null, snapping: false });
+                    }, 400);
+                }
+            };
+
+            const nextChapter = useMemo(() => {
+                if (!currentManga) return null;
+                const currentIndex = libraryStructure.mangas.findIndex(m => m.id === currentManga.id);
+                if (currentIndex >= 0 && currentIndex < libraryStructure.mangas.length - 1) {
+                    return libraryStructure.mangas[currentIndex + 1];
+                }
+                return null;
+            }, [currentManga, libraryStructure.mangas]);
+
+            return (
+                <div className="h-full w-full bg-black">
+                    {view === 'hub' && (
+                        <div className="flex flex-col h-full animate-in bg-black">
+                            <header className="relative flex-none flex items-center justify-between p-4 bg-black/80 backdrop-blur-xl border-b border-theme-600/30 shadow-[0_4px_30px_rgba(var(--theme-rgb),0.15)] z-20">
+                                <h1 className="text-2xl font-black uppercase tracking-tighter italic cursor-default">
+                                    <span className="text-white" style={{ textShadow: '0 0 10px rgba(255,255,255,0.6), 0 0 20px rgba(var(--theme-rgb),0.5)' }}>Manga</span><span className="text-theme-500" style={{ textShadow: '0 0 10px rgba(var(--theme-rgb),0.8), 0 0 20px rgba(var(--theme-rgb),1), 0 0 30px rgba(var(--theme-rgb),0.8)' }}>Hub</span>
+                                </h1>
+                                
+                                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 hidden sm:block">
+                                    <div className="relative">
+                                        <div className="absolute inset-y-0 left-3 flex items-center text-theme-400/80 pointer-events-none"><IconSearch /></div>
+                                        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher..." className="bg-theme-950/40 border border-theme-500/40 rounded-full py-1.5 pl-9 pr-4 text-xs text-theme-100 outline-none focus:border-theme-400 focus:shadow-[0_0_15px_rgba(var(--theme-rgb),0.5)] focus:bg-theme-900/50 placeholder-theme-300/50 w-48 md:w-64 transition-all duration-300 shadow-[inset_0_0_15px_rgba(var(--theme-rgb),0.2)]" />
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-2 sm:gap-3">
+                                    {deferredPrompt && (
+                                        <button onClick={handleInstallApp} className="bg-gradient-to-r from-theme-600 to-theme-800 text-white px-3 sm:px-4 h-9 flex items-center justify-center rounded-lg active:scale-95 transition border border-theme-400 shadow-[0_0_15px_rgba(var(--theme-rgb),0.6)] hover:shadow-[0_0_25px_rgba(var(--theme-rgb),0.9)] text-[10px] sm:text-xs font-black uppercase tracking-wider animate-[pulse_2s_ease-in-out_infinite]">
+                                            Installer App
+                                        </button>
+                                    )}
+
+                                    <button onClick={() => setLibSort(prev => prev === 'recent' ? 'alpha' : 'recent')} className="bg-black text-theme-400 hover:text-theme-300 w-9 h-9 flex items-center justify-center rounded-lg active:scale-95 transition border border-theme-600/40 shadow-[0_0_10px_rgba(var(--theme-rgb),0.2)] hover:shadow-[0_0_20px_rgba(var(--theme-rgb),0.6)] hover:bg-theme-900/20" title={libSort === 'recent' ? "Passer au tri A-Z" : "Passer au tri par date"}>
+                                        {libSort === 'recent' ? <IconClock /> : <span className="font-black text-[12px] tracking-tighter">ABC</span>}
+                                    </button>
+                                    
+                                    <button onClick={() => setShowBookmarksOnly(prev => !prev)} className={`w-9 h-9 flex items-center justify-center transition border shadow-[0_0_10px_rgba(var(--theme-rgb),0.2)] hover:shadow-[0_0_20px_rgba(var(--theme-rgb),0.6)] rounded-lg active:scale-95 ${showBookmarksOnly ? 'bg-theme-600/20 text-theme-100 border-theme-500' : 'bg-black text-theme-400 hover:text-theme-300 hover:bg-theme-900/20 border-theme-600/40'}`} title="Afficher mes marque-pages">
+                                        {showBookmarksOnly ? <IconBookmarkFilled width="16" height="16" /> : <IconBookmarkOutline width="16" height="16" />}
+                                    </button>
+
+                                    <button onClick={() => setIsAdding(true)} className="bg-theme-600/20 text-theme-400 hover:text-theme-300 w-9 h-9 flex items-center justify-center rounded-lg active:scale-95 transition border border-theme-500 shadow-[0_0_15px_rgba(var(--theme-rgb),0.4)] hover:shadow-[0_0_25px_rgba(var(--theme-rgb),0.8)] hover:bg-theme-600/40" title="Ajouter un manga">
+                                        <IconBookPlus />
+                                    </button>
+
+                                    <div className="relative">
+                                        <button onClick={() => setShowThemeSettings(!showThemeSettings)} className={`w-9 h-9 flex items-center justify-center transition border shadow-[0_0_10px_rgba(var(--theme-rgb),0.2)] hover:shadow-[0_0_20px_rgba(var(--theme-rgb),0.6)] ${showThemeSettings ? 'bg-black text-theme-100 border-theme-500/40 rounded-t-lg rounded-b-none border-b-0' : 'bg-black text-theme-400 hover:text-theme-300 hover:bg-theme-900/20 rounded-lg border-theme-600/40 active:scale-95'}`} title="Thèmes"><IconPalette /></button>
+                                        
+                                        {showThemeSettings && (
+                                            <>
+                                                <div className="fixed inset-0 z-[110] cursor-default" onClick={() => setShowThemeSettings(false)}></div>
+                                                <div className="absolute top-full right-0 w-9 bg-black/95 backdrop-blur-xl border border-theme-500/40 border-t-0 rounded-b-lg shadow-[0_15px_40px_rgba(var(--theme-rgb),0.4)] z-[120] p-1 pt-0 pb-2 flex flex-col items-center gap-2 animate-in origin-top">
+                                                    <div className="h-px w-full bg-theme-900/50 mb-1"></div>
+                                                    <button onClick={() => { setAppTheme('blue'); setShowThemeSettings(false); }} className={`w-5 h-5 rounded-full bg-[#0a46ff] shadow-[0_0_10px_rgba(10,70,255,0.8)] border ${appTheme === 'blue' ? 'border-white' : 'border-transparent'} hover:scale-110 transition-transform`} title="Néon Bleu Foncé"></button>
+                                                    <button onClick={() => { setAppTheme('red'); setShowThemeSettings(false); }} className={`w-5 h-5 rounded-full bg-[#ff0055] shadow-[0_0_10px_rgba(255,0,85,0.8)] border ${appTheme === 'red' ? 'border-white' : 'border-transparent'} hover:scale-110 transition-transform`} title="Néon Rouge"></button>
+                                                    <button onClick={() => { setAppTheme('green'); setShowThemeSettings(false); }} className={`w-5 h-5 rounded-full bg-[#39ff14] shadow-[0_0_10px_rgba(57,255,20,0.8)] border ${appTheme === 'green' ? 'border-white' : 'border-transparent'} hover:scale-110 transition-transform`} title="Néon Vert"></button>
+                                                    <button onClick={() => { setAppTheme('purple'); setShowThemeSettings(false); }} className={`w-5 h-5 rounded-full bg-[#d500ff] shadow-[0_0_10px_rgba(213,0,255,0.8)] border ${appTheme === 'purple' ? 'border-white' : 'border-transparent'} hover:scale-110 transition-transform`} title="Néon Violet"></button>
+                                                    <button onClick={() => { setAppTheme('yellow'); setShowThemeSettings(false); }} className={`w-5 h-5 rounded-full bg-[#ffea00] shadow-[0_0_10px_rgba(255,234,0,0.8)] border ${appTheme === 'yellow' ? 'border-white' : 'border-transparent'} hover:scale-110 transition-transform`} title="Néon Jaune"></button>
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+
+                                    <div className="relative">
+                                        <button onClick={() => setShowGlobalSettings(!showGlobalSettings)} className={`w-9 h-9 flex items-center justify-center transition border shadow-[0_0_10px_rgba(var(--theme-rgb),0.2)] hover:shadow-[0_0_20px_rgba(var(--theme-rgb),0.6)] ${showGlobalSettings ? 'bg-black text-theme-100 border-theme-500/40 rounded-t-lg rounded-b-none border-b-0' : 'bg-black text-theme-400 hover:text-theme-300 hover:bg-theme-900/20 rounded-lg border-theme-600/40 active:scale-95'}`} title="Paramètres"><IconSettings /></button>
+                                        
+                                        {showGlobalSettings && (
+                                            <>
+                                                <div className="fixed inset-0 z-[110] cursor-default" onClick={() => setShowGlobalSettings(false)}></div>
+                                                <div className="absolute top-full right-0 w-9 bg-black/95 backdrop-blur-xl border border-theme-500/40 border-t-0 rounded-b-lg shadow-[0_15px_40px_rgba(var(--theme-rgb),0.4)] z-[120] p-1 pt-0 flex flex-col gap-1 animate-in origin-top">
+                                                    <button onClick={() => { handleExport(); setShowGlobalSettings(false); }} className="flex items-center justify-center w-7 h-7 text-theme-400 hover:text-theme-100 hover:bg-theme-600/20 hover:shadow-[inset_0_0_15px_rgba(var(--theme-rgb),0.3)] rounded-md transition-all border border-transparent hover:border-theme-500/30" title="Exporter sauvegarde">
+                                                        <IconFloppyUp />
+                                                    </button>
+                                                    <label className="flex items-center justify-center w-7 h-7 text-theme-400 hover:text-theme-100 hover:bg-theme-600/20 hover:shadow-[inset_0_0_15px_rgba(var(--theme-rgb),0.3)] rounded-md transition-all cursor-pointer border border-transparent hover:border-theme-500/30" title="Importer sauvegarde">
+                                                        <IconFloppyDown />
+                                                        <input type="file" accept=".json" className="hidden" onChange={(e) => { handleImport(e); setShowGlobalSettings(false); }} />
+                                                    </label>
+                                                    <div className="h-px bg-theme-900/50 my-0.5 mx-1"></div>
+                                                    <button onClick={() => { setShowGlobalSettings(false); setPurgeConfirm(true); }} className="flex items-center justify-center w-7 h-7 text-red-500 hover:text-red-100 hover:bg-red-900/30 hover:shadow-[inset_0_0_15px_rgba(220,38,38,0.4)] border border-transparent hover:border-red-500/40 rounded-md transition-all" title="Vider la bibliothèque">
+                                                        <IconTrash />
+                                                    </button>
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            </header>
+                            <main className="flex-1 overflow-y-auto p-6 bg-black bg-[linear-gradient(rgba(var(--theme-rgb),0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(var(--theme-rgb),0.03)_1px,transparent_1px)] bg-[size:30px_30px] relative">
+
+                                <div className="w-full relative z-10">
+                                    <div className="flex items-center justify-between mb-6 gap-4">
+                                        <h2 className="text-xl font-black text-white uppercase tracking-widest px-3 border-l-4 border-theme-500 flex items-center gap-3 whitespace-nowrap" style={{ textShadow: '0 0 10px rgba(var(--theme-rgb),0.8)' }}>
+                                            MA BIBLIOTHÈQUE
+                                        </h2>
+                                        <div className="h-[1px] flex-1 bg-gradient-to-r from-theme-600/50 to-transparent hidden sm:block"></div>
+                                        
+                                        {libraryStructure.allAvailableTags.length > 0 && (
+                                            <button onClick={() => setShowTags(!showTags)} className={`flex-none flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all active:scale-95 ${showTags || activeTags.length > 0 ? 'bg-theme-600/20 text-theme-300 border-theme-500 shadow-[0_0_10px_rgba(var(--theme-rgb),0.3)]' : 'bg-black text-theme-400 border-theme-600/40 hover:bg-theme-900/30'}`}>
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                                                <span className="text-[10px] font-black uppercase tracking-widest">Filtres {activeTags.length > 0 && `(${activeTags.length})`}</span>
+                                            </button>
+                                        )}
+                                    </div>
+                                    
+                                    {showTags && libraryStructure.allAvailableTags.length > 0 && (
+                                        <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-6 custom-scrollbar px-1 animate-in">
+                                            <button onClick={() => setActiveTags([])} className={`flex-none px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all ${activeTags.length === 0 ? 'bg-theme-600 text-white border-theme-400 shadow-[0_0_10px_rgba(var(--theme-rgb),0.5)]' : 'bg-black text-theme-400 border-theme-600/40 hover:bg-theme-900/30'}`}>TOUS</button>
+                                            {libraryStructure.allAvailableTags.map(t => {
+                                                const isActive = activeTags.includes(t);
+                                                return (
+                                                    <button key={t} onClick={() => setActiveTags(prev => isActive ? prev.filter(x => x !== t) : [...prev, t])} className={`flex-none px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all ${isActive ? 'bg-theme-600 text-white border-theme-400 shadow-[0_0_10px_rgba(var(--theme-rgb),0.5)]' : 'bg-black text-theme-400 border-theme-600/40 hover:bg-theme-900/30'}`}>{t}</button>
+                                                )
+                                            })}
+                                        </div>
+                                    )}
+
+                                    <div className="relative min-h-[60vh]">
+                                        
+                                        {/* NOUVEAU LOGO TEXTE GÉANT (Pur CSS, sans image, avec animation Néon) */}
+                                        <div className="absolute inset-0 pointer-events-none z-0 flex items-center justify-center overflow-hidden opacity-30 neon-flicker">
+                                            <div className="text-[3.5rem] sm:text-[6rem] md:text-[9rem] lg:text-[11rem] font-black uppercase tracking-tighter italic whitespace-nowrap">
+                                                <span className="text-white" style={{ textShadow: '0 0 20px rgba(255,255,255,0.3), 0 0 40px rgba(var(--theme-rgb),0.4)' }}>Manga</span>
+                                                <span className="text-theme-500" style={{ textShadow: '0 0 30px rgba(var(--theme-rgb),0.6), 0 0 60px rgba(var(--theme-rgb),0.8), 0 0 100px rgba(var(--theme-rgb),1)' }}>Hub</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10 gap-6 pb-20 relative z-10 auto-rows-fr">
+                                            {libraryStructure.mangas.map(m => {
+                                                const isLarge = m.isDoubleCover || !!m.coverDouble; 
+                                                const displayTags = m.tags || [];
+                                                
+                                                // Logique d'affichage pour les couvertures doubles séparées (Début + Fin)
+                                                const hasSplitDoubleCover = isLarge && m.coverStart && m.coverEnd && !m.coverDouble;
+                                                const isRTL = m.direction === 'rtl';
+
+                                                return (
+                                                    <div key={m.id} onClick={() => { setCurrentManga(m); setCursor(m.bookmark != null ? m.bookmark : (m.progress || 0)); setView('reader'); setZenMode(true); markAsRead(m); }} className={`group relative bg-slate-900 rounded-2xl overflow-hidden border border-white/5 active:scale-95 transition-transform cursor-pointer h-full w-full ${isLarge ? 'col-span-2 aspect-[4/3]' : 'aspect-[3/4.5]'}`}>
+                                                        {hasSplitDoubleCover ? (
+                                                            <div className="flex w-full h-full bg-black">
+                                                                <div className="w-1/2 h-full">
+                                                                    <StackThumbnail file={isRTL ? m.coverStart : m.coverEnd} className="object-right" />
+                                                                </div>
+                                                                <div className="w-1/2 h-full relative -ml-[1px]">
+                                                                    <StackThumbnail file={isRTL ? m.coverEnd : m.coverStart} className="object-left" />
+                                                                </div>
+                                                            </div>
+                                                        ) : (
+                                                            <StackThumbnail file={m.coverDouble || m.coverStart || m.cover} />
+                                                        )}
+                                                        
+                                                        {m.bookmark != null && (
+                                                            <div className="absolute top-[-2px] right-2 z-20 text-theme-500 drop-shadow-[0_0_8px_rgba(0,0,0,1)]">
+                                                                <IconBookmarkFilled width="24" height="24" />
+                                                            </div>
+                                                        )}
+
+                                                        <div className="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-black/90 to-transparent pointer-events-none z-10"></div>
+                                                        <div className="absolute top-2 inset-x-2 text-center text-[10px] sm:text-xs font-black text-white truncate uppercase tracking-tighter z-20 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">{m.title}</div>
+                                                        
+                                                        {/* MENU BOUTONS STACKÉ À DROITE */}
+                                                        <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all z-30">
+                                                            <div className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 flex flex-col gap-2.5">
+                                                                <button onClick={(e) => handleExportArchive(m, 'zip', e)} className="w-9 h-9 bg-emerald-600/90 text-white rounded-lg flex items-center justify-center hover:bg-emerald-500 font-black text-[11px] shadow-[0_0_15px_rgba(16,185,129,0.5)] hover:scale-110 transition-transform" title="ZIP">ZIP</button>
+                                                                <button onClick={(e) => handleExportArchive(m, 'cbz', e)} className="w-9 h-9 bg-theme-600/90 text-white rounded-lg flex items-center justify-center hover:bg-theme-500 font-black text-[11px] shadow-[0_0_15px_rgba(var(--theme-rgb),0.5)] hover:scale-110 transition-transform" title="CBZ">CBZ</button>
+                                                                <button onClick={(e) => { e.stopPropagation(); setEditingManga(m); }} className="w-9 h-9 bg-slate-800/90 text-white rounded-lg flex items-center justify-center hover:bg-theme-600 shadow-[0_0_15px_rgba(0,0,0,0.5)] hover:scale-110 transition-transform"><IconSettings width="18" height="18" /></button>
+                                                                <button onClick={(e) => { e.stopPropagation(); setDeleteConfirm(m.id); }} className="w-9 h-9 bg-red-600/90 text-white rounded-lg flex items-center justify-center hover:bg-red-500 shadow-[0_0_15px_rgba(220,38,38,0.5)] hover:scale-110 transition-transform"><IconTrash width="18" height="18" /></button>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div className="absolute bottom-0 inset-x-0 h-20 bg-gradient-to-t from-black/90 to-transparent pointer-events-none z-10"></div>
+                                                        {displayTags.length > 0 && (
+                                                            <div className="absolute bottom-3 inset-x-2 z-20 flex flex-row flex-wrap justify-center content-end gap-1 max-h-[36px] overflow-hidden">
+                                                                {displayTags.map(t => (
+                                                                    <span key={t} className="bg-black/80 backdrop-blur-md text-theme-300 border border-theme-500/50 px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-widest shadow-[0_0_10px_rgba(var(--theme-rgb),0.4)] truncate max-w-[80px]">{t}</span>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                        
+                                                        <div className="absolute bottom-0 inset-x-0 h-1 bg-slate-800 z-30"><div className="h-full bg-theme-500" style={{width: `${getProgressPercent(m)}%`}}></div></div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                </div>
+                            </main>
+                        </div>
+                    )}
+
+                    {view === 'reader' && (
+                        <div 
+                            className={`reader-viewport overflow-hidden ${isNightMode ? 'night-mode-active' : ''}`}
+                            style={{ touchAction: 'none' }}
+                            onPointerDown={handlePointerDown}
+                            onPointerMove={handlePointerMove}
+                            onPointerUp={handlePointerUp}
+                            onPointerCancel={handlePointerUp}
+                        >
+                            <div className={`fixed top-0 left-0 right-0 p-6 bg-gradient-to-b from-black/90 to-transparent z-[120] transition-all duration-300 flex items-center justify-between ${zenMode ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}>
+                                <button onClick={(e) => { 
+                                    e.stopPropagation(); 
+                                    if (currentManga && allSpreads) saveProgress(currentManga.id, cursor, cursor >= allSpreads.length - 1, allSpreads.length);
+                                    setView('hub'); 
+                                    setZenMode(false); 
+                                    loadMangas(); 
+                                }} className="bg-black/80 backdrop-blur-md p-3 rounded-xl text-theme-400 active:scale-95 transition flex items-center justify-center border border-theme-600/40 shadow-[0_0_15px_rgba(var(--theme-rgb),0.3)] hover:shadow-[0_0_25px_rgba(var(--theme-rgb),0.6)] hover:text-theme-300 hover:bg-theme-900/30"><IconChevronLeft /></button>
+                                
+                                <div className="flex items-center gap-3">
+                                    <button onClick={toggleBookmark} className={`bg-black/80 backdrop-blur-md p-3 rounded-xl active:scale-95 transition flex items-center justify-center border shadow-[0_0_15px_rgba(var(--theme-rgb),0.3)] hover:shadow-[0_0_25px_rgba(var(--theme-rgb),0.6)] ${currentManga?.bookmark === cursor ? 'text-theme-300 border-theme-400 bg-theme-900/40' : 'text-theme-400 border-theme-600/40 hover:text-theme-300 hover:bg-theme-900/30'}`} title={currentManga?.bookmark === cursor ? "Retirer le marque-page" : "Placer un marque-page ici"}>
+                                        {currentManga?.bookmark === cursor ? <IconBookmarkFilled /> : <IconBookmarkOutline />}
+                                    </button>
+
+                                    <button onClick={(e) => { e.stopPropagation(); setIsNightMode(prev => !prev); }} className={`bg-black/80 backdrop-blur-md p-3 rounded-xl active:scale-95 transition flex items-center justify-center border shadow-[0_0_15px_rgba(var(--theme-rgb),0.3)] hover:shadow-[0_0_25px_rgba(var(--theme-rgb),0.6)] ${isNightMode ? 'text-amber-300 border-amber-600/60 bg-amber-900/30' : 'text-theme-400 border-theme-600/40 hover:text-theme-300 hover:bg-theme-900/30'}`} title="Confort des yeux (Sépia)">
+                                        {isNightMode ? <IconMoon /> : <IconSun />}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="w-full h-full flex justify-center items-center overflow-hidden relative">
+                                <div className="absolute inset-0 z-10 flex justify-center items-center" style={{transform: 'translateZ(0)', willChange: 'transform'}}>
+                                    <SpreadDisplay spread={allSpreads[cursor]} manga={currentManga} isLandscape={isLandscape} />
+                                </div>
+
+                                {prevCursor !== null && !isPhysicalAnimating && (
+                                    <div className="absolute inset-0 z-20 flex justify-center items-center">
+                                        <SpreadDisplay spread={allSpreads[prevCursor]} manga={currentManga} isLandscape={isLandscape} />
+                                    </div>
+                                )}
+
+                                {prevCursor !== null && !isPhysicalAnimating && (
+                                    <div key={`enter-${cursor}`} className={`absolute inset-0 z-30 flex justify-center items-center ${
+                                        allSpreads[cursor]?.center && !isLandscape
+                                            ? (currentManga?.direction === 'rtl' 
+                                                ? (slideDir === 'next' ? 'animate-enter-next-rtl' : 'animate-enter-prev-rtl') 
+                                                : (slideDir === 'next' ? 'animate-enter-next-ltr' : 'animate-enter-prev-ltr'))
+                                            : '' 
+                                    }`}>
+                                        <SpreadDisplay 
+                                            spread={allSpreads[cursor]} 
+                                            manga={currentManga} 
+                                            isAnimating={true} 
+                                            slideDir={slideDir} 
+                                            isLandscape={isLandscape}
+                                        />
+                                    </div>
+                                )}
+
+                                {isPhysicalAnimating && drag.targetCursor !== null && (
+                                    <div className="absolute inset-0 z-40 flex justify-center items-center">
+                                        <SpreadDisplay 
+                                            spread={allSpreads[drag.targetCursor]} 
+                                            manga={currentManga} 
+                                            physicalStyles={physicalStyles} 
+                                            isLandscape={isLandscape}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+
+                            {showNextChapterOverlay && (
+                                <div className="absolute inset-0 z-[150] bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-6 animate-in" onClick={(e) => e.stopPropagation()}>
+                                    <h2 className="text-2xl font-black text-white uppercase tracking-widest mb-2">Chapitre Terminé</h2>
+                                    {nextChapter ? (
+                                        <>
+                                            <div className="bg-black/80 border border-theme-600/40 shadow-[0_0_30px_rgba(var(--theme-rgb),0.2)] rounded-2xl p-4 max-w-sm w-full mb-8 flex items-center gap-4">
+                                                <div className="w-16 h-24 bg-black rounded-lg overflow-hidden flex-none shadow-[0_0_10px_rgba(var(--theme-rgb),0.3)]"><StackThumbnail file={nextChapter.coverStart || nextChapter.coverDouble || nextChapter.cover} contain={nextChapter.isDoubleCover || !!nextChapter.coverDouble} /></div>
+                                                <div className="flex-1 overflow-hidden"><span className="text-[10px] text-theme-400 font-black uppercase tracking-widest block mb-1" style={{ textShadow: '0 0 10px rgba(var(--theme-rgb),0.8)' }}>Suivant</span><h3 className="text-white font-bold truncate">{nextChapter.title}</h3></div>
+                                            </div>
+                                            <div className="flex gap-4 w-full max-w-sm">
+                                                <button onClick={() => { 
+                                                    if (currentManga && allSpreads) saveProgress(currentManga.id, cursor, true, allSpreads.length);
+                                                    setView('hub'); 
+                                                    setZenMode(false); 
+                                                    setShowNextChapterOverlay(false); 
+                                                    loadMangas(); 
+                                                }} className="flex-1 py-4 bg-black text-theme-400 border border-theme-600/40 font-black text-[10px] rounded-xl uppercase transition hover:bg-theme-950/30">Bibliothèque</button>
+                                                <button onClick={() => { 
+                                                    if (currentManga && allSpreads) saveProgress(currentManga.id, cursor, true, allSpreads.length);
+                                                    setCurrentManga(nextChapter); 
+                                                    setCursor(nextChapter.bookmark != null ? nextChapter.bookmark : (nextChapter.progress || 0)); 
+                                                    markAsRead(nextChapter); 
+                                                    setShowNextChapterOverlay(false); 
+                                                }} className="flex-1 py-4 bg-theme-600/20 text-theme-300 border border-theme-500 font-black text-[10px] rounded-xl uppercase transition shadow-[0_0_15px_rgba(var(--theme-rgb),0.4)] hover:shadow-[0_0_25px_rgba(var(--theme-rgb),0.6)]">Chapitre Suivant</button>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <div className="flex flex-col items-center gap-6 mt-4 w-full max-w-sm">
+                                            <p className="text-theme-300/70 text-sm text-center">Vous avez atteint la fin de la lecture de la sélection.</p>
+                                            <button onClick={() => { 
+                                                if (currentManga && allSpreads) saveProgress(currentManga.id, cursor, true, allSpreads.length);
+                                                setView('hub'); 
+                                                setZenMode(false); 
+                                                setShowNextChapterOverlay(false); 
+                                                loadMangas(); 
+                                            }} className="w-full py-4 bg-black text-theme-400 border border-theme-600/40 font-black text-[10px] rounded-xl uppercase transition hover:bg-theme-950/30">Retour à la bibliothèque</button>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            <div className={`fixed bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/90 to-transparent z-[120] transition-all duration-300 flex justify-center ${zenMode ? 'translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`} onClick={(e) => e.stopPropagation()} onPointerDown={(e) => e.stopPropagation()}>
+                                <div className="bg-black/80 backdrop-blur-md p-4 rounded-2xl border border-theme-600/40 flex flex-col items-center shadow-[0_0_30px_rgba(var(--theme-rgb),0.2)] w-full max-w-md gap-4">
+                                    <div className="flex justify-center items-center w-full px-2">
+                                        <span className="text-[10px] font-black text-theme-400 uppercase tracking-widest" style={{ textShadow: '0 0 10px rgba(var(--theme-rgb),0.8)' }}>{allSpreads[cursor]?.info}</span>
+                                    </div>
+                                    <input type="range" min="0" max={Math.max(0, allSpreads.length - 1)} value={cursor} onChange={(e) => handleSetCursor(Number(e.target.value))} className="w-full h-1.5 rounded-lg appearance-none cursor-pointer custom-range" />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {editingManga && (
+                        <div className="fixed inset-0 z-[400] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in">
+                            <div className="bg-black/80 w-full max-w-sm rounded-[32px] p-6 border border-theme-600/40 shadow-[0_0_30px_rgba(var(--theme-rgb),0.2)]">
+                                <h2 className="text-lg font-black mb-6 text-center uppercase text-theme-400" style={{ textShadow: '0 0 10px rgba(var(--theme-rgb),0.8)' }}>Modifier</h2>
+                                <form onSubmit={executeUpdateManga} className="space-y-4">
+                                    <input name="title" defaultValue={editingManga.title} required className="w-full bg-black border border-theme-600/40 rounded-xl px-4 py-3 text-theme-300 font-bold text-sm text-center outline-none focus:border-theme-400 focus:shadow-[0_0_15px_rgba(var(--theme-rgb),0.4)] shadow-[inset_0_0_10px_rgba(var(--theme-rgb),0.1)] [text-shadow:0_0_10px_rgba(var(--theme-rgb),0.8)] transition-all" />
+                                    <input name="tags" defaultValue={(editingManga.tags || []).join(', ')} placeholder="Tags (Ex: Shonen, Action...)" className="w-full bg-black border border-theme-600/40 rounded-xl px-4 py-3 text-theme-300 font-bold text-sm text-center outline-none focus:border-theme-400 focus:shadow-[0_0_15px_rgba(var(--theme-rgb),0.4)] shadow-[inset_0_0_10px_rgba(var(--theme-rgb),0.1)] [text-shadow:0_0_10px_rgba(var(--theme-rgb),0.8)] transition-all" />
+                                    <div className="flex gap-3 pt-2">
+                                        <button type="button" onClick={() => setEditingManga(null)} className="flex-1 py-4 bg-black text-theme-400 border border-theme-600/40 font-black text-[10px] rounded-xl uppercase transition hover:bg-theme-950/30">Annuler</button>
+                                        <button type="submit" className="flex-1 py-4 bg-theme-600/20 text-theme-300 border border-theme-500 font-black text-[10px] rounded-xl uppercase transition shadow-[0_0_15px_rgba(var(--theme-rgb),0.4)] hover:shadow-[0_0_25px_rgba(var(--theme-rgb),0.6)]">Valider</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    )}
+
+                    {(deleteConfirm || purgeConfirm) && (
+                        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-black/95 backdrop-blur-sm animate-in">
+                            <div className="bg-black/80 rounded-[32px] p-8 border border-red-600/40 shadow-[0_0_30px_rgba(220,38,38,0.2)] max-w-xs w-full text-center">
+                                <h3 className="text-lg font-black text-red-400 mb-4 uppercase tracking-widest" style={{ textShadow: '0 0 10px rgba(220,38,38,0.8)' }}>Confirmer ?</h3>
+                                <div className="flex gap-3">
+                                    <button onClick={() => {setDeleteConfirm(null); setPurgeConfirm(false);}} className="flex-1 py-4 bg-black text-theme-400 border border-theme-600/40 font-black text-[10px] rounded-xl uppercase transition hover:bg-theme-950/30">NON</button>
+                                    <button onClick={() => { if (deleteConfirm) { initDB().then(db => { const tx = db.transaction(STORE_NAME, "readwrite"); tx.objectStore(STORE_NAME).delete(deleteConfirm); tx.oncomplete = () => { setDeleteConfirm(null); loadMangas(); }; }); } else { executePurge(); } }} className="flex-1 py-4 bg-red-950/40 text-red-400 border border-red-600/50 font-black text-[10px] rounded-xl uppercase transition shadow-[0_0_15px_rgba(220,38,38,0.4)] hover:shadow-[0_0_25px_rgba(220,38,38,0.7)] hover:bg-red-900/50">OUI</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {isAdding && (
+                        <div className="fixed inset-0 z-[300] bg-black/95 flex items-center justify-center p-4 backdrop-blur-md animate-in">
+                            <form onSubmit={handleAdd} className="bg-black/80 w-full max-w-md rounded-[32px] p-6 border border-theme-600/40 shadow-[0_0_40px_rgba(var(--theme-rgb),0.25)] flex flex-col max-h-[95vh] relative overflow-hidden">
+                                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-20 bg-theme-600/20 blur-[50px] rounded-full pointer-events-none"></div>
+
+                                <h2 className="text-theme-400 font-black mb-6 uppercase text-center tracking-widest text-sm flex-none relative z-10" style={{ textShadow: '0 0 15px rgba(var(--theme-rgb),0.8)' }}>Nouveau Chapitre</h2>
+                                
+                                <div className="overflow-y-auto flex-1 pr-2 pb-2 relative z-10 custom-scrollbar">
+                                    <div className="mb-4 bg-black border border-theme-500/30 rounded-xl p-3 flex flex-col items-center justify-center text-center shadow-[inset_0_0_15px_rgba(var(--theme-rgb),0.1)]">
+                                        <span className="text-theme-400 font-black text-[10px] uppercase tracking-widest mb-2" style={{ textShadow: '0 0 8px rgba(var(--theme-rgb),0.5)' }}>Import Rapide ZIP/CBZ</span>
+                                        <label className="bg-theme-600/20 text-theme-300 border border-theme-500 px-4 py-2 rounded-lg text-[10px] font-black uppercase cursor-pointer active:scale-95 transition-all flex items-center gap-2 shadow-[0_0_10px_rgba(var(--theme-rgb),0.3)] hover:shadow-[0_0_20px_rgba(var(--theme-rgb),0.6)] hover:bg-theme-600/40"><IconUpload className="w-4 h-4" /> SELECTIONNER ARCHIVE<input type="file" accept=".zip,.cbz" className="hidden" onChange={handleZipImport} /></label>
+                                    </div>
+                                    
+                                    <input value={formTitle} onChange={e => setFormTitle(e.target.value)} placeholder="Titre du chapitre" required className="w-full bg-black border border-theme-600/40 rounded-xl px-4 py-3 text-theme-300 font-bold mb-3 text-sm text-center outline-none focus:border-theme-400 focus:shadow-[0_0_15px_rgba(var(--theme-rgb),0.4)] shadow-[inset_0_0_10px_rgba(var(--theme-rgb),0.1)] placeholder-theme-800 transition-all [text-shadow:0_0_10px_rgba(var(--theme-rgb),0.8)]" />
+                                    
+                                    <input value={formTags} onChange={e => setFormTags(e.target.value)} placeholder="Tags (Ex: Shonen, Action, Terminé...)" className="w-full mb-3 bg-black border border-theme-600/40 rounded-xl px-4 py-3 text-theme-300 font-bold text-sm text-center outline-none focus:border-theme-400 focus:shadow-[0_0_15px_rgba(var(--theme-rgb),0.4)] shadow-[inset_0_0_10px_rgba(var(--theme-rgb),0.1)] placeholder-theme-800 transition-all [text-shadow:0_0_10px_rgba(var(--theme-rgb),0.8)]" />
+                                    
+                                    <select value={formMangaDir} onChange={e => setFormMangaDir(e.target.value)} className="w-full mb-4 bg-black border border-theme-600/40 rounded-xl px-4 py-3 text-[10px] text-theme-300 font-black uppercase tracking-widest outline-none focus:border-theme-400 focus:shadow-[0_0_15px_rgba(var(--theme-rgb),0.4)] shadow-[inset_0_0_10px_rgba(var(--theme-rgb),0.1)] transition-all appearance-none text-center [text-shadow:0_0_10px_rgba(var(--theme-rgb),0.8)]">
+                                        <option value="rtl">Lecture Manga (Droite à Gauche)</option>
+                                        <option value="ltr">Lecture BD (Gauche à Droite)</option>
+                                    </select>
+
+                                    <div className="flex items-center justify-between bg-black border border-theme-600/40 rounded-xl px-4 py-3 mb-4 shadow-[inset_0_0_10px_rgba(var(--theme-rgb),0.1)]">
+                                        <span className="text-[10px] text-theme-300 font-black uppercase tracking-widest" style={{ textShadow: '0 0 8px rgba(var(--theme-rgb),0.5)' }}>Lier en Cover Double (Paysage)</span>
+                                        <label className="relative inline-flex items-center cursor-pointer active:scale-95 transition-transform">
+                                            <input type="checkbox" className="sr-only peer" checked={formIsDoubleCover} onChange={e => setFormIsDoubleCover(e.target.checked)} />
+                                            <div className="w-11 h-6 bg-theme-900/50 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-theme-400 after:border-theme-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-theme-600 shadow-[0_0_10px_rgba(var(--theme-rgb),0.2)]"></div>
+                                        </label>
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-2 gap-3 mb-3">
+                                        {/* Cover Début Simple */}
+                                        {coverStartPreview ? (
+                                            <label className="relative rounded-2xl border border-theme-500 cursor-pointer active:scale-95 transition-all h-32 overflow-hidden shadow-[0_0_15px_rgba(var(--theme-rgb),0.3)] block group bg-black">
+                                                <img src={coverStartPreview} className="absolute inset-0 w-full h-full object-cover opacity-40 blur-md scale-110" />
+                                                <img src={coverStartPreview} className="absolute inset-0 w-full h-full object-contain drop-shadow-2xl relative z-10" />
+                                                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/80 to-transparent pt-8 pb-2 px-3 flex justify-between items-end opacity-0 group-hover:opacity-100 transition-opacity md:opacity-100 z-20">
+                                                    <span className="text-[9px] text-white font-black uppercase drop-shadow-[0_0_5px_rgba(0,0,0,1)]">Début</span>
+                                                    <span className="bg-theme-600/80 border border-theme-400 text-white text-[8px] font-bold px-1.5 py-0.5 rounded backdrop-blur-md">MODIFIER</span>
+                                                </div>
+                                                <input type="file" accept="image/*" className="hidden" onChange={e => { 
+                                                    if (e.target.files && e.target.files[0]) {
+                                                        setCoverStartFile(e.target.files[0]);
+                                                        if (coverStartPreview) URL.revokeObjectURL(coverStartPreview);
+                                                        setCoverStartPreview(URL.createObjectURL(e.target.files[0]));
+                                                    } 
+                                                }} />
+                                            </label>
+                                        ) : (
+                                            <label className="relative bg-black hover:bg-theme-950/30 rounded-2xl border border-theme-600/40 p-3 text-center cursor-pointer active:scale-95 transition-all flex flex-col items-center justify-center h-32 shadow-[inset_0_0_15px_rgba(var(--theme-rgb),0.1)] hover:shadow-[0_0_15px_rgba(var(--theme-rgb),0.3)] hover:border-theme-400 group">
+                                                <span className="text-[10px] text-theme-200 uppercase font-black mb-1 group-hover:text-theme-100 transition-colors">Cover Début</span>
+                                                <span className="text-theme-700 text-[8px] font-bold uppercase mb-2">Requis</span>
+                                                <span className="text-theme-400 font-black text-[9px] bg-theme-900/40 border border-theme-500/30 px-2 py-1 rounded-md group-hover:bg-theme-600/30 group-hover:border-theme-400 transition-all">+ AJOUTER</span>
+                                                <input type="file" accept="image/*" className="hidden" onChange={e => { 
+                                                    if (e.target.files && e.target.files[0]) {
+                                                        setCoverStartFile(e.target.files[0]);
+                                                        if (coverStartPreview) URL.revokeObjectURL(coverStartPreview);
+                                                        setCoverStartPreview(URL.createObjectURL(e.target.files[0]));
+                                                    } 
+                                                }} />
+                                            </label>
+                                        )}
+
+                                        {/* Cover Fin Simple */}
+                                        {coverEndPreview ? (
+                                            <label className="relative rounded-2xl border border-theme-500 cursor-pointer active:scale-95 transition-all h-32 overflow-hidden shadow-[0_0_15px_rgba(var(--theme-rgb),0.3)] block group bg-black">
+                                                <img src={coverEndPreview} className="absolute inset-0 w-full h-full object-cover opacity-40 blur-md scale-110" />
+                                                <img src={coverEndPreview} className="absolute inset-0 w-full h-full object-contain drop-shadow-2xl relative z-10" />
+                                                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/80 to-transparent pt-8 pb-2 px-3 flex justify-between items-end opacity-0 group-hover:opacity-100 transition-opacity md:opacity-100 z-20">
+                                                    <span className="text-[9px] text-white font-black uppercase drop-shadow-[0_0_5px_rgba(0,0,0,1)]">Fin</span>
+                                                    <span className="bg-theme-600/80 border border-theme-400 text-white text-[8px] font-bold px-1.5 py-0.5 rounded backdrop-blur-md">MODIFIER</span>
+                                                </div>
+                                                <input type="file" accept="image/*" className="hidden" onChange={e => { 
+                                                    if (e.target.files && e.target.files[0]) {
+                                                        setCoverEndFile(e.target.files[0]);
+                                                        if (coverEndPreview) URL.revokeObjectURL(coverEndPreview);
+                                                        setCoverEndPreview(URL.createObjectURL(e.target.files[0]));
+                                                    } 
+                                                }} />
+                                            </label>
+                                        ) : (
+                                            <label className="relative bg-black hover:bg-theme-950/30 rounded-2xl border border-theme-600/40 p-3 text-center cursor-pointer active:scale-95 transition-all flex flex-col items-center justify-center h-32 shadow-[inset_0_0_15px_rgba(var(--theme-rgb),0.1)] hover:shadow-[0_0_15px_rgba(var(--theme-rgb),0.3)] hover:border-theme-400 group">
+                                                <span className="text-[10px] text-theme-200 uppercase font-black mb-1 group-hover:text-theme-100 transition-colors">Cover Fin</span>
+                                                <span className="text-theme-700 text-[8px] font-bold uppercase mb-2">Optionnel</span>
+                                                <span className="text-theme-500 font-black text-[9px] bg-theme-950 border border-theme-800/50 px-2 py-1 rounded-md group-hover:bg-theme-900/50 group-hover:border-theme-600 transition-all">+ AJOUTER</span>
+                                                <input type="file" accept="image/*" className="hidden" onChange={e => { 
+                                                    if (e.target.files && e.target.files[0]) {
+                                                        setCoverEndFile(e.target.files[0]);
+                                                        if (coverEndPreview) URL.revokeObjectURL(coverEndPreview);
+                                                        setCoverEndPreview(URL.createObjectURL(e.target.files[0]));
+                                                    } 
+                                                }} />
+                                            </label>
+                                        )}
+                                    </div>
+
+                                    {/* Pages Intérieures en pleine largeur */}
+                                    <div className={`relative rounded-2xl border text-center transition-all h-24 mb-2 group ${orderedPages.length > 0 ? 'bg-theme-950/30 border-theme-500 shadow-[0_0_15px_rgba(var(--theme-rgb),0.3)]' : 'bg-black hover:bg-theme-950/30 border-theme-600/40 shadow-[inset_0_0_15px_rgba(var(--theme-rgb),0.1)] hover:shadow-[0_0_15px_rgba(var(--theme-rgb),0.3)] hover:border-theme-400'}`}>
+                                        <label className="absolute inset-0 cursor-pointer flex flex-col items-center justify-center z-10 active:scale-95">
+                                            <span className={`text-[10px] uppercase font-black mb-1 transition-colors ${orderedPages.length > 0 ? 'text-theme-300' : 'text-theme-200 group-hover:text-theme-100'}`}>Pages Intérieures</span>
+                                            <span className="text-theme-700 text-[8px] font-bold uppercase mb-2">Multiples</span>
+                                            <input type="file" multiple accept="image/*" className="hidden" onChange={handlePagesSelection} />
+                                            {orderedPages.length > 0 ? (
+                                                <span className="text-theme-100 font-black text-[9px] bg-theme-600/40 border border-theme-400 px-2 py-1 rounded-md shadow-[0_0_10px_rgba(var(--theme-rgb),0.5)]">✓ {orderedPages.length} PAGES</span>
+                                            ) : (
+                                                <span className="text-theme-400 font-black text-[9px] bg-theme-900/40 border border-theme-500/30 px-2 py-1 rounded-md group-hover:bg-theme-600/30 group-hover:border-theme-400 transition-all">+ SÉLECTIONNER LES PAGES</span>
+                                            )}
+                                        </label>
+                                        
+                                        {orderedPages.length > 0 && (
+                                            <button 
+                                                type="button" 
+                                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsManualSorting(true); }}
+                                                className="absolute top-2 right-2 p-1.5 bg-theme-600/40 text-theme-100 hover:text-white rounded-lg border border-theme-400 hover:bg-theme-500 transition-all z-20 shadow-[0_0_10px_rgba(var(--theme-rgb),0.6)] active:scale-95"
+                                                title="Modifier l'ordre"
+                                            >
+                                                <IconSettings />
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                                
+                                <div className="flex gap-3 mt-2 pt-4 border-t border-theme-600/30 flex-none relative z-10">
+                                    <button type="button" onClick={() => setIsAdding(false)} className="flex-1 py-4 text-theme-500 hover:text-theme-300 hover:bg-theme-950/30 font-black uppercase text-[10px] rounded-xl transition-all border border-transparent hover:border-theme-600/40">Annuler</button>
+                                    <button 
+                                        type="submit" 
+                                        disabled={!coverStartFile || orderedPages.length === 0} 
+                                        className={`flex-1 py-4 rounded-xl font-black uppercase text-[10px] transition-all shadow-lg border ${(!coverStartFile || orderedPages.length === 0) ? 'bg-black text-theme-800 border-theme-900/30 shadow-none cursor-not-allowed' : 'bg-theme-600/20 text-theme-300 border-theme-500 hover:bg-theme-600/30 shadow-[0_0_15px_rgba(var(--theme-rgb),0.4)] hover:shadow-[0_0_25px_rgba(var(--theme-rgb),0.6)] active:scale-95'}`}
+                                    >
+                                        Lancer l'import
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    )}
+
+                    {isManualSorting && (
+                        <div className="fixed inset-0 z-[400] bg-black/95 p-4 sm:p-8 animate-in flex flex-col backdrop-blur-md">
+                            <div className="flex justify-between items-center mb-6 border-b border-theme-600/30 pb-4 flex-none">
+                                <div>
+                                    <h3 className="text-sm sm:text-lg font-black uppercase text-theme-400 tracking-widest" style={{ textShadow: '0 0 10px rgba(var(--theme-rgb),0.8)' }}>Ordre manuel</h3>
+                                    <p className="text-[10px] text-theme-300/50 uppercase mt-1">Maintenez appuyé pour glisser-déposer</p>
+                                </div>
+                                <button type="button" onClick={() => setIsManualSorting(false)} className="bg-theme-600/20 text-theme-300 border border-theme-500 px-4 py-2 sm:px-6 sm:py-3 rounded-xl text-[10px] sm:text-xs font-black uppercase transition-all shadow-[0_0_15px_rgba(var(--theme-rgb),0.3)] hover:shadow-[0_0_25px_rgba(var(--theme-rgb),0.6)] hover:bg-theme-600/30">TERMINER</button>
+                            </div>
+                            
+                            <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 pb-20">
+                                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
+                                    {orderedPages.map((f, i) => (
+                                        <div 
+                                            key={f.name + i}
+                                            draggable
+                                            onDragStart={(e) => handleDragStart(e, i)}
+                                            onDragOver={(e) => handleDragOver(e, i)}
+                                            onDrop={(e) => handleDrop(e, i)}
+                                            onDragEnd={handleDragEnd}
+                                            className={`relative aspect-[3/4.5] bg-black rounded-xl overflow-hidden border transition-all cursor-move group select-none
+                                                ${draggedIdx === i ? 'opacity-40 border-theme-400 scale-95 shadow-[0_0_20px_rgba(var(--theme-rgb),0.6)]' : 'border-theme-600/40 shadow-[0_0_10px_rgba(var(--theme-rgb),0.15)] hover:shadow-[0_0_20px_rgba(var(--theme-rgb),0.4)] hover:border-theme-400'}
+                                                ${dragOverIdx === i && draggedIdx !== i ? 'border-dashed border-2 border-theme-400 scale-105 shadow-[0_0_25px_rgba(var(--theme-rgb),0.6)] z-10' : ''}
+                                            `}
+                                        >
+                                            <StackThumbnail file={f} />
+                                            
+                                            <div className="absolute top-1 left-1 bg-black/80 backdrop-blur-md text-theme-400 font-black text-[10px] min-w-[20px] h-[20px] flex items-center justify-center rounded border border-theme-500/50 shadow-[0_0_10px_rgba(var(--theme-rgb),0.4)]">
+                                                {i + 1}
+                                            </div>
+                                            
+                                            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/90 to-transparent p-2 pt-6 pointer-events-none">
+                                                <p className="text-[8px] text-theme-100 font-bold truncate text-center drop-shadow-[0_0_5px_rgba(0,0,0,1)] opacity-70 group-hover:opacity-100">{f.name}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {loading && (
+                        <div className="fixed inset-0 z-[600] flex flex-col items-center justify-center bg-black/95 backdrop-blur-md">
+                            <div className="relative">
+                                <div className="absolute inset-0 bg-theme-500/30 blur-[20px] rounded-full"></div>
+                                <div className="w-14 h-14 border-4 border-theme-500 border-t-transparent rounded-full animate-spin drop-shadow-[0_0_10px_rgba(var(--theme-rgb),0.8)] relative z-10"></div>
+                            </div>
+                            <p className="mt-6 text-[10px] font-black text-theme-300 uppercase tracking-widest" style={{ textShadow: '0 0 10px rgba(var(--theme-rgb),0.6)' }}>
+                                {importProgress ? `Traitement... ${importProgress}` : 'Optimisation...'}
+                            </p>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                if (window.location.protocol !== 'blob:') {
+                    navigator.serviceWorker.register('./sw.js')
+                        .then(reg => console.log('Service Worker enregistré ! (Mode hors-ligne activé)', reg))
+                        .catch(err => console.error('Erreur Service Worker', err));
+                } else {
+                    console.log("Service Worker ignoré dans l'environnement d'aperçu.");
+                }
+            });
+        }
+    </script>
+</body>
+</html>
