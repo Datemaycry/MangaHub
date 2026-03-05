@@ -128,7 +128,7 @@
             width: 100% !important;
             height: 100% !important;
             display: block; object-fit: contain; pointer-events: none;
-            object-position: center bottom; /* Ancre l'image en bas pour forcer l'espace noir en haut */
+            object-position: center bottom !important; /* Force l'ancrage en bas absolu */
             transform: translateZ(0); will-change: transform; backface-visibility: hidden; -webkit-backface-visibility: hidden;
             transition: filter 0.4s ease;
         }
@@ -177,8 +177,8 @@
             transform-origin: left center; transform-style: preserve-3d;
         }
 
-        .img-left { object-position: right bottom; margin-right: -0.25px; }
-        .img-right { object-position: left bottom; margin-left: -0.25px; }
+        .img-left { object-position: right bottom !important; margin-right: -0.25px; }
+        .img-right { object-position: left bottom !important; margin-left: -0.25px; }
 
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -1294,25 +1294,25 @@
                             </div>
 
                             <div className="w-full h-full flex justify-center items-center overflow-hidden relative">
-                                {/* REMPLACEMENT DES 'safe-bounds' PAR 'absolute inset-0' POUR LE PLEIN ECRAN */}
-                                <div className="absolute inset-0 z-10 flex justify-center items-center" style={{transform: 'translateZ(0)', willChange: 'transform'}}>
+                                {/* DÉCALAGE DU HAUT UNIQUEMENT POUR SAUVER LA BARRE D'ÉTAT SANS TOUCHER AUX CÔTÉS */}
+                                <div className="absolute inset-x-0 bottom-0 z-10 flex justify-center items-center" style={{top: 'env(safe-area-inset-top)', transform: 'translateZ(0)', willChange: 'transform'}}>
                                     <SpreadDisplay spread={allSpreads[cursor]} manga={currentManga} isLandscape={isLandscape} />
                                 </div>
 
                                 {prevCursor !== null && !isPhysicalAnimating && (
-                                    <div className="absolute inset-0 z-20 flex justify-center items-center">
+                                    <div className="absolute inset-x-0 bottom-0 z-20 flex justify-center items-center" style={{top: 'env(safe-area-inset-top)'}}>
                                         <SpreadDisplay spread={allSpreads[prevCursor]} manga={currentManga} isLandscape={isLandscape} />
                                     </div>
                                 )}
 
                                 {prevCursor !== null && !isPhysicalAnimating && (
-                                    <div key={`enter-${cursor}`} className={`absolute inset-0 z-30 flex justify-center items-center ${
+                                    <div key={`enter-${cursor}`} className={`absolute inset-x-0 bottom-0 z-30 flex justify-center items-center ${
                                         allSpreads[cursor]?.center && !isLandscape
                                             ? (currentManga?.direction === 'rtl' 
                                                 ? (slideDir === 'next' ? 'animate-enter-next-rtl' : 'animate-enter-prev-rtl') 
                                                 : (slideDir === 'next' ? 'animate-enter-next-ltr' : 'animate-enter-prev-ltr'))
                                             : '' 
-                                    }`}>
+                                    }`} style={{top: 'env(safe-area-inset-top)'}}>
                                         <SpreadDisplay 
                                             spread={allSpreads[cursor]} 
                                             manga={currentManga} 
@@ -1324,7 +1324,7 @@
                                 )}
 
                                 {isPhysicalAnimating && drag.targetCursor !== null && (
-                                    <div className="absolute inset-0 z-40 flex justify-center items-center">
+                                    <div className="absolute inset-x-0 bottom-0 z-40 flex justify-center items-center" style={{top: 'env(safe-area-inset-top)'}}>
                                         <SpreadDisplay 
                                             spread={allSpreads[drag.targetCursor]} 
                                             manga={currentManga} 
