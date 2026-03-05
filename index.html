@@ -52,7 +52,6 @@
         
         /* VARIABLES CSS DES THEMES (MODE NÉON EXTRÊME) */
         :root {
-            /* DEFAUT : BLEU FONCÉ NÉON */
             --theme-rgb: 10, 70, 255;
             --theme-100: 224, 236, 255;
             --theme-200: 193, 216, 255;
@@ -126,21 +125,37 @@
         }
 
         .reader-img {
-            /* CORRECTION: Forcer 100% pour empêcher tout débordement/rognage dans le flexbox */
             width: 100% !important;
             height: 100% !important;
             display: block; object-fit: contain; pointer-events: none;
             transform: translateZ(0); will-change: transform; backface-visibility: hidden; -webkit-backface-visibility: hidden;
-            transition: filter 0.4s ease; /* Transition douce pour le mode nuit */
+            transition: filter 0.4s ease;
         }
 
-        /* FILTRE MODE NUIT (SÉPIA + ASSOMBRISSEMENT) */
         .night-mode-active .reader-img {
             filter: sepia(0.5) brightness(0.6) contrast(0.9) !important;
         }
 
-        .reader-ui-top { position: absolute; top: 0; left: 0; right: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); padding: 20px; z-index: 120; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .reader-ui-bottom { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); padding: 25px; z-index: 120; display: flex; justify-content: center; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        /* CORRECTION IOS SAFE AREA POUR LE LECTEUR */
+        .reader-ui-top { 
+            position: absolute; top: 0; left: 0; right: 0; 
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); 
+            padding: 20px; 
+            padding-top: max(20px, env(safe-area-inset-top)); /* Gère l'encoche iOS en mode liseuse */
+            padding-left: max(20px, env(safe-area-inset-left));
+            padding-right: max(20px, env(safe-area-inset-right));
+            z-index: 120; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        
+        .reader-ui-bottom { 
+            position: absolute; bottom: 0; left: 0; right: 0; 
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); 
+            padding: 25px; 
+            padding-bottom: max(25px, env(safe-area-inset-bottom)); /* Gère la barre de retour iOS */
+            padding-left: max(25px, env(safe-area-inset-left));
+            padding-right: max(25px, env(safe-area-inset-right));
+            z-index: 120; display: flex; justify-content: center; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
 
         .zen-mode-active .reader-ui-top { opacity: 0; pointer-events: none; transform: translateY(-20px); }
         .zen-mode-active .reader-ui-bottom { opacity: 0; pointer-events: none; transform: translateY(20px); }
@@ -190,7 +205,6 @@
         .custom-range { -webkit-appearance: none; outline: none; background: #334155; }
         .custom-range::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: rgb(var(--theme-500)); cursor: pointer; box-shadow: 0 0 10px rgba(var(--theme-rgb), 0.6); }
 
-        /* ANIMATION NÉON SÉCURISÉE */
         @keyframes neon-flicker-opacity {
             0%, 19.9%, 22%, 62.9%, 64%, 64.9%, 70%, 100% { opacity: 0.9; }
             20%, 21.9%, 63%, 63.9%, 65%, 69.9% { opacity: 0.3; }
@@ -332,7 +346,6 @@
         const SpreadDisplay = ({ spread, manga, isAnimating = false, slideDir = "next", physicalStyles = null, isLandscape = true }) => {
             if (!spread) return null;
             
-            // CORRECTION : Détecter dynamiquement le sens pour plier la bonne moitié de la page
             const isRTL = manga?.direction === 'rtl';
             let animLeftClass = "";
             let animRightClass = "";
@@ -351,18 +364,12 @@
                 if (isLandscape) {
                     return (
                         <div className="flex w-full h-full perspective-[3000px] transform-style-[preserve-3d]">
-                            <div 
-                                className={`w-1/2 h-full relative overflow-hidden ${animLeftClass}`} 
-                                style={physicalStyles?.left || {}}
-                            >
+                            <div className={`w-1/2 h-full relative overflow-hidden ${animLeftClass}`} style={physicalStyles?.left || {}}>
                                 <div className="absolute top-0 left-0 w-[100vw] h-full flex justify-center items-center">
                                     <ReaderImage file={spread.center} />
                                 </div>
                             </div>
-                            <div 
-                                className={`w-1/2 h-full relative overflow-hidden ${animRightClass}`} 
-                                style={physicalStyles?.right || {}}
-                            >
+                            <div className={`w-1/2 h-full relative overflow-hidden ${animRightClass}`} style={physicalStyles?.right || {}}>
                                 <div className="absolute top-0 right-0 w-[100vw] h-full flex justify-center items-center">
                                     <ReaderImage file={spread.center} />
                                 </div>
@@ -375,17 +382,10 @@
             }
             return (
                 <div className="double-layout">
-                    <div 
-                        className={`page-wrapper-left ${animLeftClass}`} 
-                        style={physicalStyles?.left || {}}
-                    >
+                    <div className={`page-wrapper-left ${animLeftClass}`} style={physicalStyles?.left || {}}>
                         {spread.left ? <ReaderImage file={spread.left} className="img-left" /> : <div className="w-full h-full bg-black"></div>}
                     </div>
-                    
-                    <div 
-                        className={`page-wrapper-right ${animRightClass}`} 
-                        style={physicalStyles?.right || {}}
-                    >
+                    <div className={`page-wrapper-right ${animRightClass}`} style={physicalStyles?.right || {}}>
                         {spread.right ? <ReaderImage file={spread.right} className="img-right" /> : <div className="w-full h-full bg-black"></div>}
                     </div>
                 </div>
@@ -837,7 +837,6 @@
                 
                 if (isLandscape) {
                     if (isDouble && currentManga.coverStart && currentManga.coverEnd) {
-                        // CORRECTION : Respecter la mise à plat physique (BD vs Manga)
                         if (isRTL) {
                             spreads.push({ left: currentManga.coverStart, right: currentManga.coverEnd, info: "Couvertures", pageIndices: [-1] });
                         } else {
@@ -846,7 +845,6 @@
                     } else {
                         const cover = currentManga.coverStart || currentManga.coverDouble;
                         if (cover) {
-                            // CORRECTION : Placement physique d'une couverture simple
                             if (isRTL) {
                                 spreads.push({ left: cover, right: null, info: "Couverture", pageIndices: [-1] });
                             } else {
@@ -866,7 +864,6 @@
                     }
                     
                     if (currentManga.coverEnd && !isDouble) {
-                        // CORRECTION : Placement physique d'une 4ème de couverture simple
                         if (isRTL) {
                             spreads.push({ left: null, right: currentManga.coverEnd, info: "Couverture Fin", pageIndices: [-2] });
                         } else {
@@ -951,8 +948,6 @@
 
                 const brightness = 1 - (Math.sin(p * Math.PI) * 0.35); 
                 const dropShadowX = drag.dir === 'next' ? -35 : 35;
-                
-                // CORRECTION : Remplacement de l'effet néon par une ombre noire naturelle pour la lecture
                 const shadowOpacity = Math.sin(p * Math.PI) * 0.7; 
                 const filterStyle = `brightness(${brightness}) drop-shadow(${dropShadowX}px 5px 30px rgba(0, 0, 0, ${shadowOpacity}))`;
 
@@ -1048,7 +1043,6 @@
                         const finalCursor = drag.targetCursor;
                         setCursor(finalCursor);
                         
-                        // SAUVEGARDE INSTANTANÉE APRÈS LE GESTE
                         if (currentManga && allSpreads) {
                             saveProgress(currentManga.id, finalCursor, finalCursor >= allSpreads.length - 1, allSpreads.length);
                         }
@@ -1081,12 +1075,20 @@
                 <div className="h-full w-full bg-black">
                     {view === 'hub' && (
                         <div className="flex flex-col h-full animate-in bg-black">
-                            <header className="relative flex-none flex items-center justify-between p-4 bg-black/80 backdrop-blur-xl border-b border-theme-600/30 shadow-[0_4px_30px_rgba(var(--theme-rgb),0.15)] z-20">
+                            {/* CORRECTION IOS SAFE AREA POUR LE HEADER */}
+                            <header 
+                                className="relative flex-none flex items-center justify-between p-4 bg-black/80 backdrop-blur-xl border-b border-theme-600/30 shadow-[0_4px_30px_rgba(var(--theme-rgb),0.15)] z-20"
+                                style={{ 
+                                    paddingTop: 'max(1rem, env(safe-area-inset-top))',
+                                    paddingLeft: 'max(1rem, env(safe-area-inset-left))',
+                                    paddingRight: 'max(1rem, env(safe-area-inset-right))'
+                                }}
+                            >
                                 <h1 className="text-2xl font-black uppercase tracking-tighter italic cursor-default">
                                     <span className="text-white" style={{ textShadow: '0 0 10px rgba(255,255,255,0.6), 0 0 20px rgba(var(--theme-rgb),0.5)' }}>Manga</span><span className="text-theme-500" style={{ textShadow: '0 0 10px rgba(var(--theme-rgb),0.8), 0 0 20px rgba(var(--theme-rgb),1), 0 0 30px rgba(var(--theme-rgb),0.8)' }}>Hub</span>
                                 </h1>
                                 
-                                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 hidden sm:block">
+                                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 hidden sm:block" style={{ marginTop: 'calc(env(safe-area-inset-top) / 2)' }}>
                                     <div className="relative">
                                         <div className="absolute inset-y-0 left-3 flex items-center text-theme-400/80 pointer-events-none"><IconSearch /></div>
                                         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher..." className="bg-theme-950/40 border border-theme-500/40 rounded-full py-1.5 pl-9 pr-4 text-xs text-theme-100 outline-none focus:border-theme-400 focus:shadow-[0_0_15px_rgba(var(--theme-rgb),0.5)] focus:bg-theme-900/50 placeholder-theme-300/50 w-48 md:w-64 transition-all duration-300 shadow-[inset_0_0_15px_rgba(var(--theme-rgb),0.2)]" />
@@ -1154,7 +1156,16 @@
                                     </div>
                                 </div>
                             </header>
-                            <main className="flex-1 overflow-y-auto p-6 bg-black bg-[linear-gradient(rgba(var(--theme-rgb),0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(var(--theme-rgb),0.03)_1px,transparent_1px)] bg-[size:30px_30px] relative">
+                            
+                            {/* CORRECTION IOS SAFE AREA POUR LE CONTENU PRINCIPAL (ÉVITER QUE LE BAS SOIT COUPÉ) */}
+                            <main 
+                                className="flex-1 overflow-y-auto p-6 bg-black bg-[linear-gradient(rgba(var(--theme-rgb),0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(var(--theme-rgb),0.03)_1px,transparent_1px)] bg-[size:30px_30px] relative"
+                                style={{ 
+                                    paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))',
+                                    paddingLeft: 'max(1.5rem, env(safe-area-inset-left))',
+                                    paddingRight: 'max(1.5rem, env(safe-area-inset-right))'
+                                }}
+                            >
 
                                 <div className="w-full relative z-10">
                                     <div className="flex items-center justify-between mb-6 gap-4">
@@ -1184,8 +1195,6 @@
                                     )}
 
                                     <div className="relative min-h-[60vh]">
-                                        
-                                        {/* NOUVEAU LOGO TEXTE GÉANT (Pur CSS, sans image, avec animation Néon) */}
                                         <div className="absolute inset-0 pointer-events-none z-0 flex items-center justify-center overflow-hidden opacity-30 neon-flicker">
                                             <div className="text-[3.5rem] sm:text-[6rem] md:text-[9rem] lg:text-[11rem] font-black uppercase tracking-tighter italic whitespace-nowrap">
                                                 <span className="text-white" style={{ textShadow: '0 0 20px rgba(255,255,255,0.3), 0 0 40px rgba(var(--theme-rgb),0.4)' }}>Manga</span>
@@ -1197,8 +1206,6 @@
                                             {libraryStructure.mangas.map(m => {
                                                 const isLarge = m.isDoubleCover || !!m.coverDouble; 
                                                 const displayTags = m.tags || [];
-                                                
-                                                // Logique d'affichage pour les couvertures doubles séparées (Début + Fin)
                                                 const hasSplitDoubleCover = isLarge && m.coverStart && m.coverEnd && !m.coverDouble;
                                                 const isRTL = m.direction === 'rtl';
 
@@ -1226,7 +1233,6 @@
                                                         <div className="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-black/90 to-transparent pointer-events-none z-10"></div>
                                                         <div className="absolute top-2 inset-x-2 text-center text-[10px] sm:text-xs font-black text-white truncate uppercase tracking-tighter z-20 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">{m.title}</div>
                                                         
-                                                        {/* MENU BOUTONS STACKÉ À DROITE */}
                                                         <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all z-30">
                                                             <div className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 flex flex-col gap-2.5">
                                                                 <button onClick={(e) => handleExportArchive(m, 'zip', e)} className="w-9 h-9 bg-emerald-600/90 text-white rounded-lg flex items-center justify-center hover:bg-emerald-500 font-black text-[11px] shadow-[0_0_15px_rgba(16,185,129,0.5)] hover:scale-110 transition-transform" title="ZIP">ZIP</button>
@@ -1265,7 +1271,7 @@
                             onPointerUp={handlePointerUp}
                             onPointerCancel={handlePointerUp}
                         >
-                            <div className={`fixed top-0 left-0 right-0 p-6 bg-gradient-to-b from-black/90 to-transparent z-[120] transition-all duration-300 flex items-center justify-between ${zenMode ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}>
+                            <div className={`reader-ui-top ${zenMode ? 'opacity-0 pointer-events-none -translate-y-full' : 'opacity-100 translate-y-0'} flex items-center justify-between`}>
                                 <button onClick={(e) => { 
                                     e.stopPropagation(); 
                                     if (currentManga && allSpreads) saveProgress(currentManga.id, cursor, cursor >= allSpreads.length - 1, allSpreads.length);
@@ -1367,7 +1373,7 @@
                                 </div>
                             )}
 
-                            <div className={`fixed bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/90 to-transparent z-[120] transition-all duration-300 flex justify-center ${zenMode ? 'translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`} onClick={(e) => e.stopPropagation()} onPointerDown={(e) => e.stopPropagation()}>
+                            <div className={`reader-ui-bottom ${zenMode ? 'opacity-0 pointer-events-none translate-y-full' : 'opacity-100 translate-y-0'}`} onClick={(e) => e.stopPropagation()} onPointerDown={(e) => e.stopPropagation()}>
                                 <div className="bg-black/80 backdrop-blur-md p-4 rounded-2xl border border-theme-600/40 flex flex-col items-center shadow-[0_0_30px_rgba(var(--theme-rgb),0.2)] w-full max-w-md gap-4">
                                     <div className="flex justify-center items-center w-full px-2">
                                         <span className="text-[10px] font-black text-theme-400 uppercase tracking-widest" style={{ textShadow: '0 0 10px rgba(var(--theme-rgb),0.8)' }}>{allSpreads[cursor]?.info}</span>
@@ -1437,7 +1443,6 @@
                                     </div>
                                     
                                     <div className="grid grid-cols-2 gap-3 mb-3">
-                                        {/* Cover Début Simple */}
                                         {coverStartPreview ? (
                                             <label className="relative rounded-2xl border border-theme-500 cursor-pointer active:scale-95 transition-all h-32 overflow-hidden shadow-[0_0_15px_rgba(var(--theme-rgb),0.3)] block group bg-black">
                                                 <img src={coverStartPreview} className="absolute inset-0 w-full h-full object-cover opacity-40 blur-md scale-110" />
@@ -1469,7 +1474,6 @@
                                             </label>
                                         )}
 
-                                        {/* Cover Fin Simple */}
                                         {coverEndPreview ? (
                                             <label className="relative rounded-2xl border border-theme-500 cursor-pointer active:scale-95 transition-all h-32 overflow-hidden shadow-[0_0_15px_rgba(var(--theme-rgb),0.3)] block group bg-black">
                                                 <img src={coverEndPreview} className="absolute inset-0 w-full h-full object-cover opacity-40 blur-md scale-110" />
@@ -1502,7 +1506,6 @@
                                         )}
                                     </div>
 
-                                    {/* Pages Intérieures en pleine largeur */}
                                     <div className={`relative rounded-2xl border text-center transition-all h-24 mb-2 group ${orderedPages.length > 0 ? 'bg-theme-950/30 border-theme-500 shadow-[0_0_15px_rgba(var(--theme-rgb),0.3)]' : 'bg-black hover:bg-theme-950/30 border-theme-600/40 shadow-[inset_0_0_15px_rgba(var(--theme-rgb),0.1)] hover:shadow-[0_0_15px_rgba(var(--theme-rgb),0.3)] hover:border-theme-400'}`}>
                                         <label className="absolute inset-0 cursor-pointer flex flex-col items-center justify-center z-10 active:scale-95">
                                             <span className={`text-[10px] uppercase font-black mb-1 transition-colors ${orderedPages.length > 0 ? 'text-theme-300' : 'text-theme-200 group-hover:text-theme-100'}`}>Pages Intérieures</span>
@@ -1600,17 +1603,17 @@
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
 
+        // INITIALISATION DU SERVICE WORKER (Indispensable pour le mode hors ligne)
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 if (window.location.protocol !== 'blob:') {
                     navigator.serviceWorker.register('./sw.js')
                         .then(reg => console.log('Service Worker enregistré ! (Mode hors-ligne activé)', reg))
                         .catch(err => console.error('Erreur Service Worker', err));
-                } else {
-                    console.log("Service Worker ignoré dans l'environnement d'aperçu.");
                 }
             });
         }
     </script>
 </body>
 </html>
+
