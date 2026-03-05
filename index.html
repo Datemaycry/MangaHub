@@ -128,12 +128,22 @@
             width: 100% !important;
             height: 100% !important;
             display: block; object-fit: contain; pointer-events: none;
+            object-position: center bottom; /* Ancre l'image en bas pour forcer l'espace noir en haut */
             transform: translateZ(0); will-change: transform; backface-visibility: hidden; -webkit-backface-visibility: hidden;
             transition: filter 0.4s ease;
         }
 
         .night-mode-active .reader-img {
             filter: sepia(0.5) brightness(0.6) contrast(0.9) !important;
+        }
+
+        /* NOUVEAU : Zone 100% sécurisée contre les encoches et barres iOS */
+        .safe-bounds {
+            position: absolute;
+            top: env(safe-area-inset-top);
+            bottom: max(0px, env(safe-area-inset-bottom));
+            left: max(0px, env(safe-area-inset-left));
+            right: max(0px, env(safe-area-inset-right));
         }
 
         /* CORRECTION IOS SAFE AREA POUR LE LECTEUR */
@@ -176,8 +186,8 @@
             transform-origin: left center; transform-style: preserve-3d;
         }
 
-        .img-left { object-position: right center; margin-right: -0.25px; }
-        .img-right { object-position: left center; margin-left: -0.25px; }
+        .img-left { object-position: right bottom; margin-right: -0.25px; }
+        .img-right { object-position: left bottom; margin-left: -0.25px; }
 
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -1196,6 +1206,7 @@
 
                                     <div className="relative min-h-[60vh]">
                                         <div className="absolute inset-0 pointer-events-none z-0 flex items-center justify-center overflow-hidden opacity-30 neon-flicker">
+                                            {/* CORRECTION DU LOGO : Tailles élastiques (vw) pour s'adapter à la verticale */}
                                             <div className="w-full text-center text-[15vw] sm:text-[13vw] md:text-[11vw] lg:text-[9rem] font-black uppercase tracking-tighter italic whitespace-nowrap">
                                                 <span className="text-white" style={{ textShadow: '0 0 20px rgba(255,255,255,0.3), 0 0 40px rgba(var(--theme-rgb),0.4)' }}>Manga</span>
                                                 <span className="text-theme-500" style={{ textShadow: '0 0 30px rgba(var(--theme-rgb),0.6), 0 0 60px rgba(var(--theme-rgb),0.8), 0 0 100px rgba(var(--theme-rgb),1)' }}>Hub</span>
@@ -1292,18 +1303,19 @@
                             </div>
 
                             <div className="w-full h-full flex justify-center items-center overflow-hidden relative">
-                                <div className="absolute inset-0 z-10 flex justify-center items-center" style={{transform: 'translateZ(0)', willChange: 'transform'}}>
+                                {/* REMPLACEMENT DES 'absolute inset-0' PAR 'safe-bounds' */}
+                                <div className="safe-bounds z-10 flex justify-center items-center" style={{transform: 'translateZ(0)', willChange: 'transform'}}>
                                     <SpreadDisplay spread={allSpreads[cursor]} manga={currentManga} isLandscape={isLandscape} />
                                 </div>
 
                                 {prevCursor !== null && !isPhysicalAnimating && (
-                                    <div className="absolute inset-0 z-20 flex justify-center items-center">
+                                    <div className="safe-bounds z-20 flex justify-center items-center">
                                         <SpreadDisplay spread={allSpreads[prevCursor]} manga={currentManga} isLandscape={isLandscape} />
                                     </div>
                                 )}
 
                                 {prevCursor !== null && !isPhysicalAnimating && (
-                                    <div key={`enter-${cursor}`} className={`absolute inset-0 z-30 flex justify-center items-center ${
+                                    <div key={`enter-${cursor}`} className={`safe-bounds z-30 flex justify-center items-center ${
                                         allSpreads[cursor]?.center && !isLandscape
                                             ? (currentManga?.direction === 'rtl' 
                                                 ? (slideDir === 'next' ? 'animate-enter-next-rtl' : 'animate-enter-prev-rtl') 
@@ -1321,7 +1333,7 @@
                                 )}
 
                                 {isPhysicalAnimating && drag.targetCursor !== null && (
-                                    <div className="absolute inset-0 z-40 flex justify-center items-center">
+                                    <div className="safe-bounds z-40 flex justify-center items-center">
                                         <SpreadDisplay 
                                             spread={allSpreads[drag.targetCursor]} 
                                             manga={currentManga} 
