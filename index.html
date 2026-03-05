@@ -137,15 +137,6 @@
             filter: sepia(0.5) brightness(0.6) contrast(0.9) !important;
         }
 
-        /* NOUVEAU : Zone 100% sécurisée contre les encoches et barres iOS */
-        .safe-bounds {
-            position: absolute;
-            top: env(safe-area-inset-top);
-            bottom: max(0px, env(safe-area-inset-bottom));
-            left: max(0px, env(safe-area-inset-left));
-            right: max(0px, env(safe-area-inset-right));
-        }
-
         /* CORRECTION IOS SAFE AREA POUR LE LECTEUR */
         .reader-ui-top { 
             position: absolute; top: 0; left: 0; right: 0; 
@@ -1303,19 +1294,19 @@
                             </div>
 
                             <div className="w-full h-full flex justify-center items-center overflow-hidden relative">
-                                {/* REMPLACEMENT DES 'absolute inset-0' PAR 'safe-bounds' */}
-                                <div className="safe-bounds z-10 flex justify-center items-center" style={{transform: 'translateZ(0)', willChange: 'transform'}}>
+                                {/* REMPLACEMENT DES 'safe-bounds' PAR 'absolute inset-0' POUR LE PLEIN ECRAN */}
+                                <div className="absolute inset-0 z-10 flex justify-center items-center" style={{transform: 'translateZ(0)', willChange: 'transform'}}>
                                     <SpreadDisplay spread={allSpreads[cursor]} manga={currentManga} isLandscape={isLandscape} />
                                 </div>
 
                                 {prevCursor !== null && !isPhysicalAnimating && (
-                                    <div className="safe-bounds z-20 flex justify-center items-center">
+                                    <div className="absolute inset-0 z-20 flex justify-center items-center">
                                         <SpreadDisplay spread={allSpreads[prevCursor]} manga={currentManga} isLandscape={isLandscape} />
                                     </div>
                                 )}
 
                                 {prevCursor !== null && !isPhysicalAnimating && (
-                                    <div key={`enter-${cursor}`} className={`safe-bounds z-30 flex justify-center items-center ${
+                                    <div key={`enter-${cursor}`} className={`absolute inset-0 z-30 flex justify-center items-center ${
                                         allSpreads[cursor]?.center && !isLandscape
                                             ? (currentManga?.direction === 'rtl' 
                                                 ? (slideDir === 'next' ? 'animate-enter-next-rtl' : 'animate-enter-prev-rtl') 
@@ -1333,7 +1324,7 @@
                                 )}
 
                                 {isPhysicalAnimating && drag.targetCursor !== null && (
-                                    <div className="safe-bounds z-40 flex justify-center items-center">
+                                    <div className="absolute inset-0 z-40 flex justify-center items-center">
                                         <SpreadDisplay 
                                             spread={allSpreads[drag.targetCursor]} 
                                             manga={currentManga} 
