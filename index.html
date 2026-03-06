@@ -1036,7 +1036,7 @@
                         <div className="flex flex-col h-full animate-in bg-black">
                             {/* NOUVEAU HEADER RESPONSIVE : ADAPTÉ PC ET MOBILE */}
                             <header 
-                                className="relative flex-none flex flex-col gap-4 p-4 bg-black/80 backdrop-blur-xl border-b border-theme-600/30 shadow-[0_4px_30px_rgba(var(--theme-rgb),0.15)] z-20"
+                                className="relative flex-none flex flex-col gap-4 p-4 bg-black/80 backdrop-blur-xl border-b border-theme-600/30 shadow-[0_4px_30px_rgba(var(--theme-rgb),0.15)] z-30"
                                 style={{ 
                                     paddingTop: 'max(1rem, env(safe-area-inset-top))',
                                     paddingLeft: 'max(1rem, env(safe-area-inset-left))',
@@ -1048,7 +1048,7 @@
                                         <span className="text-white" style={{ textShadow: '0 0 10px rgba(255,255,255,0.6), 0 0 20px rgba(var(--theme-rgb),0.5)' }}>Manga</span><span className="text-theme-500" style={{ textShadow: '0 0 10px rgba(var(--theme-rgb),0.8), 0 0 20px rgba(var(--theme-rgb),1), 0 0 30px rgba(var(--theme-rgb),0.8)' }}>Hub</span>
                                     </h1>
                                     
-                                    {/* BARRE DE RECHERCHE PC (Au centre de l'en-tête) */}
+                                    {/* BARRE DE RECHERCHE PC */}
                                     <div className="hidden sm:flex flex-1 justify-center px-4">
                                         <div className="relative">
                                             <div className="absolute inset-y-0 left-3 flex items-center text-theme-400/80 pointer-events-none"><IconSearch /></div>
@@ -1119,25 +1119,24 @@
                                     </div>
                                 </div>
                                 
-                                {/* BARRE DE RECHERCHE MOBILE (En dessous du titre sur petits écrans) */}
+                                {/* BARRE DE RECHERCHE MOBILE */}
                                 <div className="sm:hidden w-full relative">
                                     <div className="absolute inset-y-0 left-3 flex items-center text-theme-400/80 pointer-events-none"><IconSearch /></div>
                                     <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher..." className="bg-theme-950/40 border border-theme-500/40 rounded-full py-2 pl-10 pr-4 text-sm text-theme-100 outline-none focus:border-theme-400 focus:shadow-[0_0_15px_rgba(var(--theme-rgb),0.5)] focus:bg-theme-900/50 placeholder-theme-300/50 w-full transition-all duration-300 shadow-[inset_0_0_15px_rgba(var(--theme-rgb),0.2)]" />
                                 </div>
                             </header>
                             
-                            {/* CORRECTION DU BUG DE SCROLL: Ajout de "custom-scrollbar" à la div principale ! */}
+                            {/* CORPS PRINCIPAL - Structure Flex pour séparer les éléments fixes et la zone de scroll */}
                             <main 
-                                className="flex-1 overflow-y-auto custom-scrollbar p-6 bg-black bg-[linear-gradient(rgba(var(--theme-rgb),0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(var(--theme-rgb),0.03)_1px,transparent_1px)] bg-[size:30px_30px] relative"
+                                className="flex-1 flex flex-col overflow-hidden bg-black bg-[linear-gradient(rgba(var(--theme-rgb),0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(var(--theme-rgb),0.03)_1px,transparent_1px)] bg-[size:30px_30px] relative"
                                 style={{ 
-                                    paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))',
-                                    paddingLeft: 'max(1.5rem, env(safe-area-inset-left))',
-                                    paddingRight: 'max(1.5rem, env(safe-area-inset-right))'
+                                    paddingLeft: 'max(0px, env(safe-area-inset-left))',
+                                    paddingRight: 'max(0px, env(safe-area-inset-right))'
                                 }}
                             >
-
-                                <div className="w-full relative z-10">
-                                    <div className="flex items-center justify-between mb-6 gap-4">
+                                {/* ZONE FIXE : TITRE ET FILTRES (Au-dessus du fond, ne scrolle pas) */}
+                                <div className="flex-none px-6 pt-6 relative z-20">
+                                    <div className="flex items-center justify-between mb-4 gap-4">
                                         <h2 className="text-xl font-black text-white uppercase tracking-widest px-3 border-l-4 border-theme-500 flex items-center gap-3 whitespace-nowrap" style={{ textShadow: '0 0 10px rgba(var(--theme-rgb),0.8)' }}>
                                             MA BIBLIOTHÈQUE
                                         </h2>
@@ -1152,7 +1151,7 @@
                                     </div>
                                     
                                     {showTags && libraryStructure.allAvailableTags.length > 0 && (
-                                        <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-6 custom-scrollbar px-1 animate-in">
+                                        <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-2 custom-scrollbar px-1 animate-in">
                                             <button onClick={() => setActiveTags([])} className={`flex-none px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all ${activeTags.length === 0 ? 'bg-theme-600 text-white border-theme-400 shadow-[0_0_10px_rgba(var(--theme-rgb),0.5)]' : 'bg-black text-theme-400 border-theme-600/40 hover:bg-theme-900/30'}`}>TOUS</button>
                                             {libraryStructure.allAvailableTags.map(t => {
                                                 const isActive = activeTags.includes(t);
@@ -1162,16 +1161,25 @@
                                             })}
                                         </div>
                                     )}
+                                </div>
 
-                                    <div className="relative min-h-[60vh]">
-                                        <div className="absolute inset-0 pointer-events-none z-0 flex items-center justify-center overflow-hidden opacity-30 neon-flicker">
-                                            <div className="text-[3.5rem] sm:text-[6rem] md:text-[9rem] lg:text-[11rem] font-black uppercase tracking-tighter italic whitespace-nowrap">
-                                                <span className="text-white" style={{ textShadow: '0 0 20px rgba(255,255,255,0.3), 0 0 40px rgba(var(--theme-rgb),0.4)' }}>Manga</span>
-                                                <span className="text-theme-500" style={{ textShadow: '0 0 30px rgba(var(--theme-rgb),0.6), 0 0 60px rgba(var(--theme-rgb),0.8), 0 0 100px rgba(var(--theme-rgb),1)' }}>Hub</span>
-                                            </div>
+                                {/* ZONE DE SCROLL : LA BIBLIOTHÈQUE ET SON LOGO DE FOND */}
+                                <div className="relative flex-1 w-full min-h-0">
+                                    
+                                    {/* LOGO EN ARRIÈRE PLAN - Fixé au centre et adapte sa taille intelligemment */}
+                                    <div className="absolute inset-0 pointer-events-none z-0 flex items-center justify-center overflow-hidden opacity-30 neon-flicker">
+                                        <div className="font-black uppercase tracking-tighter italic whitespace-nowrap text-center select-none" style={{ fontSize: 'clamp(2rem, min(10vw, 15vh), 12rem)' }}>
+                                            <span className="text-white" style={{ textShadow: '0 0 20px rgba(255,255,255,0.3), 0 0 40px rgba(var(--theme-rgb),0.4)' }}>Manga</span>
+                                            <span className="text-theme-500 ml-1" style={{ textShadow: '0 0 30px rgba(var(--theme-rgb),0.6), 0 0 60px rgba(var(--theme-rgb),0.8), 0 0 100px rgba(var(--theme-rgb),1)' }}>Hub</span>
                                         </div>
-                                        
-                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10 gap-4 sm:gap-6 pb-20 relative z-10 auto-rows-fr">
+                                    </div>
+
+                                    {/* CONTENEUR DE LA GRILLE - C'est lui qui défile et passe par-dessus le logo */}
+                                    <div 
+                                        className="absolute inset-0 overflow-y-auto custom-scrollbar px-6 z-10"
+                                        style={{ paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}
+                                    >
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10 gap-4 sm:gap-6 pt-2 pb-20 relative auto-rows-fr">
                                             {libraryStructure.mangas.map(m => {
                                                 const isLarge = m.isDoubleCover || !!m.coverDouble; 
                                                 const displayTags = m.tags || [];
